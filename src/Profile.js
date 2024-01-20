@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet } from 'reac
 
 import {initializeApp} from 'firebase/app';
 import { getFirestore } from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore"; 
+import { doc, getDoc, collection, getDocs } from "firebase/firestore"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
@@ -105,11 +105,35 @@ const Profile = ({ navigation }) => {
    const handleCashOut = async () => {
     // Implement logic to cash out here using the value of `moneyAmount`.
 
-     const querySnapshot = await getDocs(collection(db, "users"));
+    //  const querySnapshot = await getDocs(collection(db, "users"));
 
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data()}`);
-    });
+    // querySnapshot.forEach((doc) => {
+    //   console.log(`${doc.id} => ${doc.data()}`);
+    //   console.log(doc.data().balance);
+    // });
+
+    const docRef = doc(db, "users", "username");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("balance is ", docSnap.data().balance);
+
+    }
+
+     // grabbing the pre info
+    //  const docRef = doc(db, "users", "username");
+    //  const docSnap = await getDoc(docRef);
+    //  console.log("balance before ", docSnap.data());
+
+     // doing the change into database
+     // await updateDoc(docRef, {
+     //   balance: docSnap.data().balance - moneyAmount
+     // });
+
+     // // printing change
+     // docRef = doc(db, "users", "username");
+     // docSnap = await getDoc(docRef);
+     // onsole.log("balance now ", docSnap.data().balance);
 
     // querySnapshot.forEach((doc) => {
     //   console.log(`${doc.id} => ${doc.data()}`);
