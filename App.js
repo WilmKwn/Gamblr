@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, LogBox } from 'react-native';
+import { AsyncStorage, View, Text, StyleSheet, LogBox } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,13 +16,13 @@ const Tab = createBottomTabNavigator();
 function MyStack() {
   return (
     <Stack.Navigator initialRouteName="LOGIN">
-      <Tab.Screen name="BETS HOME" component={BetsHome} />
       <Stack.Screen name="LOGIN" component={Login} />
+      <Stack.Screen name="BETS HOME" component={BetsHome} />
       <Stack.Screen name="BET DETAIL" component={BetDetail} />
       <Stack.Screen name="PROFILE" component={Profile} />
       <Stack.Screen name="CREATE" component={CreateBet} />
     </Stack.Navigator>
-  )
+  );
 }
 
 export default function App() {

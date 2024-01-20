@@ -8,9 +8,10 @@ export default function StockBet({route}) {
     const [bets, setBets] = React.useState([]);
 
     const betsData = [
-        {title: "bet1"},
-        {title: "bet2"},
-        {title: "bet3"},
+        {title: "bet1", count: 0, total: 0, yesOrNo: false},
+        {title: "bet2", count: 0, total: 0, yesOrNo: false},
+        {title: "bet3", count: 0, total: 0, yesOrNo: false},
+        {title: "bet4", count: 0, total: 0, yesOrNo: false},
     ]
 
     const navigation = useNavigation();
@@ -43,8 +44,8 @@ export default function StockBet({route}) {
         setBets(betsData.filter((bet) => bet.title.toUpperCase().includes(searchText.toUpperCase())));
     }
 
-    const navigateToDetail = (title) => {
-        navigation.navigate('BET DETAIL', {title});
+    const navigateToDetail = (item) => {
+        navigation.navigate('BET DETAIL', {item});
     }
     const navigateToProfile = () => {
         navigation.navigate('PROFILE');
@@ -54,14 +55,17 @@ export default function StockBet({route}) {
     }
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <FlatList
                 data={bets}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => navigateToDetail(item.title)}>
+                    <TouchableOpacity onPress={() => navigateToDetail(item)}>
                         <View style={styles.listItem}>
                             <Text style={styles.text}>{item.title}</Text>
+                            <Text style={styles.countTotalText}>
+                                Count: {item.count}, Total: {item.total}
+                            </Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -75,10 +79,10 @@ export default function StockBet({route}) {
                     source={require('../images/plus_logo.png')}
                     style={{
                         position: 'absolute',
-                        bottom: 0,
-                        right: 0,
-                        width: 50, // Set the width of the image
-                        height: 50, // Set the height of the image
+                        bottom: 50,
+                        right: 20,
+                        width: 50,
+                        height: 50,
                     }}
                 />
             </TouchableOpacity>
@@ -101,6 +105,10 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 32,
         fontWeight: "bold",
+    },
+    countTotalText: {
+        fontSize: 16,
+        color: '#555',
     },
     searchInput: {
         fontSize: 18,
