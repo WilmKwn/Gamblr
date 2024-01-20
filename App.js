@@ -1,9 +1,8 @@
 import React from 'react';
-import { AsyncStorage, View, Text, StyleSheet, LogBox } from 'react-native';
+import { AsyncStorage, View, Text, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-// import { initializeApp } from '@react-native-firebase/app';
 
 import BetsHome from "./src/BetsHome";
 import BetDetail from './src/BetDetail';
@@ -11,15 +10,18 @@ import Profile from './src/Profile';
 import Login from "./src/Login";
 import CreateBet from "./src/CreateBet";
 
+import {initializeApp} from 'firebase/app';
+
 // const firebaseConfig = {
-//   apiKey: 'YOUR_API_KEY',
-//   authDomain: 'YOUR_AUTH_DOMAIN',
-//   projectId: 'YOUR_PROJECT_ID',
-//   storageBucket: 'YOUR_STORAGE_BUCKET',
-//   messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-//   appId: 'YOUR_APP_ID',
+//   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
+//   authDomain: "gamblr-b2653.firebaseapp.com",
+//   projectId: "gamblr-b2653",
+//   storageBucket: "gamblr-b2653.appspot.com",
+//   messagingSenderId: "46861839",
+//   appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
+//   measurementId: "G-T7RM76C2QB"
 // };
-// initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfig);
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
