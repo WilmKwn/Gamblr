@@ -1,11 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const BetDetail = () => {
-
+const CreateBet = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>PROFILE</Text>
+            <Text style={styles.text}>Create Bet</Text>
         </View>
     );
 };
@@ -22,4 +21,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BetDetail;
+export default CreateBet;
