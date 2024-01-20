@@ -3,7 +3,7 @@ import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet }
 import { useNavigation } from '@react-navigation/native';
 
 export default function StockBet({route}) {
-    //const {tabData} = route.params;
+    // const {tabData} = route.params;
 
     const [bets, setBets] = React.useState([]);
 
@@ -20,7 +20,7 @@ export default function StockBet({route}) {
         setBets(betsData);
     }, []);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         navigation.setOptions({
             headerLargeTitle: false,
             headerSearchBarOptions: {
@@ -94,7 +94,6 @@ export default function StockBet({route}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 75,
     },
     listItem: {
         borderBottomWidth: 1,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, Button, StyleSheet } from 'react-native';
+import { Switch, Text, View, TextInput, Button, StyleSheet } from 'react-native';
 
 const CreateBet = () => {
   const [title, setTitle] = useState('');
@@ -7,6 +7,7 @@ const CreateBet = () => {
   const [stockName, setStockName] = useState('');
   const [stockPrice, setStockPrice] = useState('');
   const [amount, setAmount] = useState('');
+  const [type, setType] = useState(false);
 
   const handleButtonPress = () => {
     console.log('Button pressed!');
@@ -17,9 +18,13 @@ const CreateBet = () => {
     console.log('Amount:', amount);
   };
 
+  const toggleSwitch = () => {
+    setType((prev) => !prev);
+  };
+
   return (
     <View style={styles.container}>
-        <Text style={styles.header}>Create Stock Bet</Text>
+        <Text style={styles.header}>Create Bet</Text>
       <TextInput
         style={styles.input}
         placeholder="Title"
@@ -32,6 +37,7 @@ const CreateBet = () => {
         value={description}
         onChangeText={(text) => setDescription(text)}
       />
+      <Text style={styles.header}>Stock (optional)</Text>
       <TextInput
         style={styles.input}
         placeholder="Stock Name"
@@ -44,12 +50,24 @@ const CreateBet = () => {
         value={stockPrice}
         onChangeText={(text) => setStockPrice(text)}
       />
+      <Text style={styles.header}>Amount</Text>
       <TextInput
         style={styles.input}
         placeholder="Amount"
         value={amount}
         onChangeText={(text) => setAmount(text)}
       />
+      <View style={styles.toggleContainer} flexDirection="row">
+        <Text style={styles.header}>{stockName=="" ? 'YES' : 'OVER'}</Text>
+        <Switch
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={type ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={type}
+        />
+        <Text style={styles.header}>{stockName=="" ? 'NO' : 'UNDER'}</Text>
+      </View>
       <Button title="Submit" onPress={handleButtonPress} />
     </View>
   );
