@@ -1,19 +1,23 @@
 import React from 'react';
-import { View } from 'react-native';
-import TableView from './TableView';
+import { View, Text, StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import Home from "./src/Home"
 
-const MainScreen = () => {
-  const tableData = [
-    { id: 1, name: 'John Doe', age: 25 },
-    { id: 2, name: 'Jane Doe', age: 30 },
-    // Add more data as needed
-  ];
+const Stack = createNativeStackNavigator();
 
+function MyStack() {
   return (
-    <View>
-      <TableView data={tableData} />
-    </View>
-  );
-};
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={Home} />
+    </Stack.Navigator>
+  )
+}
 
-export default MainScreen;
+export default function App() {
+  return (
+    <NavigationContainer>
+      <MyStack />
+    </NavigationContainer>
+  )
+}
