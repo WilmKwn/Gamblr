@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Switch, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Switch, TextInput, TouchableOpacity, Dimensions, Alert } from 'react-native';
 
-import Realm from 'realm';
-const UserSchema = {
-    password: 'string',
-    properties: {
-        name: 'string',
-        age: 'int',
-    },
+import {SDK_VERSION, initializeApp} from 'firebase/app';
+import { getFirestore } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc } from "firebase/firestore"; 
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
+  authDomain: "gamblr-b2653.firebaseapp.com",
+  projectId: "gamblr-b2653",
+  storageBucket: "gamblr-b2653.appspot.com",
+  messagingSenderId: "46861839",
+  appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
+  measurementId: "G-T7RM76C2QB"
 };
-const realm = new Realm({ schema: [UserSchema] });
-
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -20,11 +25,36 @@ const Login = ({ navigation }) => {
   const handleLogin = async() => {
     if (username !== "" && password !== "") {
         if (isLogin) {
-            const allUsers = realm.objects('User');
-            console.log(allUsers);
-            navigation.replace('BETS HOME');
+            const querySnapshot = await getDocs(collection(db, "users"));
+            querySnapshot.forEach((doc) => {
+                if (doc.id === username && doc.data().password === password) {
+                    navigation.replace('BETS HOME');
+                }
+            });
+            Alert.alert("WRONG username or password");
         } else {
-            navigation.replace('BETS HOME');
+            const querySnapshot = await getDocs(collection(db, "users"));
+            let found = false;
+            querySnapshot.forEach((doc) => {
+                if (doc.id === username) {
+                    Alert.alert("Username already exists");
+                    found = true;
+                }
+            });
+            if (!found) {
+                const data = {
+                    password: password,
+                    balance: 20,
+                    moneyLosses: 0,
+                    moneyWins: 0,
+                    numLosses: 0,
+                    numWins: 0,
+                    profilePic: null,
+                    activeBets: [],
+                };
+                await setDoc(doc(db, "users", username), data);
+                navigation.replace('BETS HOME');
+            }
         }
     }
   }
