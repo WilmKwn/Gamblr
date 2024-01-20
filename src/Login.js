@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Switch, TextInput, TouchableOpacity, Dimensions } from 'react-native';
 
+import Realm from 'realm';
+const UserSchema = {
+    password: 'string',
+    properties: {
+        name: 'string',
+        age: 'int',
+    },
+};
+const realm = new Realm({ schema: [UserSchema] });
+
+
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -9,11 +20,12 @@ const Login = ({ navigation }) => {
   const handleLogin = async() => {
     if (username !== "" && password !== "") {
         if (isLogin) {
-        // do login check
+            const allUsers = realm.objects('User');
+            console.log(allUsers);
+            navigation.replace('BETS HOME');
         } else {
-        // do signup check
+            navigation.replace('BETS HOME');
         }
-        navigation.replace('BETS HOME');
     }
   }
 
@@ -23,7 +35,7 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{isLogin ? 'Signup' : 'Login'}</Text>
+      <Text style={styles.title}>{isLogin ? 'Login' : 'Signup'}</Text>
       <Switch
         trackColor={{ false: '#767577', true: '#81b0ff' }}
         thumbColor={isLogin ? '#f5dd4b' : '#f4f3f4'}
@@ -45,7 +57,7 @@ const Login = ({ navigation }) => {
         style={styles.input}
       />
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>{isLogin ? 'Signup' : 'Login'}</Text>
+        <Text style={styles.buttonText}>{isLogin ? 'Login' : 'Signup'}</Text>
       </TouchableOpacity>
     </View>
   );

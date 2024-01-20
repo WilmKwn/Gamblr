@@ -10,19 +10,6 @@ import Profile from './src/Profile';
 import Login from "./src/Login";
 import CreateBet from "./src/CreateBet";
 
-import {initializeApp} from 'firebase/app';
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
-//   authDomain: "gamblr-b2653.firebaseapp.com",
-//   projectId: "gamblr-b2653",
-//   storageBucket: "gamblr-b2653.appspot.com",
-//   messagingSenderId: "46861839",
-//   appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
-//   measurementId: "G-T7RM76C2QB"
-// };
-// const app = initializeApp(firebaseConfig);
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
