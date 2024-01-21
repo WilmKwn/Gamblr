@@ -22,21 +22,27 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
-const Profile = ({ navigation }) => {
+const Profile = ({ navigation, usernameInput }) => {
+
+  // Implement logic to cash out here using the value of `moneyAmount`.
+  const docRef = doc(db, "users", usernameInput);
+  getDoc(docRef).then((docSnap) => {
 
   const user = {
-    name: "John Doe",
-    balance: 500
+    name: docSnap.data().name,
+    balance: docSnap.data().balance,
     // name: username,
     // balance: currentBalance,
   };
+
+});
 
   const [moneyAmount, setMoneyAmount] = useState('');
 
   const handleAddMoney = () => {
 
     // Implement logic to cash out here using the value of `moneyAmount`.
-    const docRef = doc(db, "users", "username");
+    const docRef = doc(db, "users", usernameInput);
 
     // Assuming moneyAmount is a string input, parse it to a floating-point number
     const inputMoney = parseFloat(moneyAmount);
@@ -63,7 +69,7 @@ const Profile = ({ navigation }) => {
 
   const handleCashOut = () => {
     // Implement logic to cash out here using the value of `moneyAmount`.
-    const docRef = doc(db, "users", "username");
+    const docRef = doc(db, "users", usernameInput);
 
     // Assuming moneyAmount is a string input, parse it to a floating-point number
     const inputMoney = parseFloat(moneyAmount);
