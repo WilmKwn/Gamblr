@@ -53,7 +53,7 @@ export default function StockBet() {
                                     arr.push(d);
                                 }
                             });
-                        })
+                        });
                     });
                 }
             });

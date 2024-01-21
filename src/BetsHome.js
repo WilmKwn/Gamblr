@@ -43,6 +43,7 @@ export default function StockBet() {
                 }
                 arr.push(d);
             });
+
             arr.sort((a,b) => (a.leftAmount+a.rightAmount) - (b.leftAmount+b.rightAmount))
             setBets(arr);
         });
