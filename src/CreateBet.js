@@ -222,7 +222,6 @@ const CreateBet = () => {
 
     //   });
 
-    // }
   };
 
   const toggleSwitch = () => {
