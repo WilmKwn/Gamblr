@@ -28,6 +28,10 @@ const BetDetail = ({ route }) => {
   const [amount, setAmount] = useState('');
   const [dir, setDir] = useState('');
 
+  const handleFinalizeBet = () => {
+
+  }
+
   const handleButtonPress = () => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
@@ -115,8 +119,26 @@ const BetDetail = ({ route }) => {
       />
 
       <TouchableOpacity style={styles.mainButton} onPress={handleButtonPress}>
-        <Text>Submit</Text>
+        <Text style={styles.finalizeButtonText}>Submit</Text>
       </TouchableOpacity>
+
+      <View style={styles.horizontalLine} />
+
+<Text style={styles.finalizeBetTitle}>Finalize Bet</Text>
+
+<View style={styles.finalizeOptionsContainer}>
+  <TouchableOpacity style={styles.finalizeOptionBox}>
+    <Text style={styles.finalizeOptionText}>Yes</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.finalizeOptionBox}>
+    <Text style={styles.finalizeOptionText}>No</Text>
+  </TouchableOpacity>
+</View>
+
+<TouchableOpacity style={styles.finalizeButton} onPress={handleFinalizeBet}>
+  <Text style={styles.finalizeButtonText}>Submit Finalization</Text>
+</TouchableOpacity>
+
     </View>
   );
 };
@@ -186,6 +208,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 15,
     alignItems: 'center',
+    color: 'white'
+  },
+  horizontalLine: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    marginBottom: 20,
+  },
+  finalizeBetTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  finalizeOptionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  finalizeOptionBox: {
+    backgroundColor: '#DDDDDD',
+    padding: 10,
+    flex: 0.48,
+    alignItems: 'center',
+  },
+  finalizeOptionText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  finalizeButton: {
+    backgroundColor: 'blue',
+    padding: 15,
+    alignItems: 'center',
+  },
+  finalizeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
