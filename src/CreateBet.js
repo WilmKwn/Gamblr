@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Switch, Text, View, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getFirestore, getDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getFirestore, getDoc, updateDoc, } from "firebase/firestore";
 
 import { useGlobal } from './Globals';
 
