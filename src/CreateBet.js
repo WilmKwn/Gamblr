@@ -156,7 +156,7 @@ const CreateBet = () => {
           description: description,
           endDate: endDate,
           startDate: currentDate,
-          particpants: [userNameInput],
+          participants: [userNameInput],
           choices: [
             {cashVotes: 0, numVotes: 0},
             {cashVotes: moneyWagerInt, numVotes: 1}
@@ -171,43 +171,43 @@ const CreateBet = () => {
           description: description,
           endDate: endDate,
           startDate: currentDate,
-          particpants: [userNameInput],
+          participants: [userNameInput],
           choices: [
             {cashVotes: moneyWagerInt, numVotes: 1},
             {cashVotes: 0, numVotes: 0}
           ]
 
         });
-        // getDocs(collection(db, 'users')).then((querySnapshot) => {
-        //     querySnapshot.forEach((docc) => {
-        //         if (docc.id === username) {
-        //             let currentBets = docc.data().activeBets;
+        getDocs(collection(db, 'users')).then((querySnapshot) => {
+            querySnapshot.forEach((docc) => {
+                if (docc.id === username) {
+                    let currentBets = docc.data().activeBets;
     
-        //             let found = false;
-        //             let newArr = [];
-        //             currentBets.forEach((bet) => {
-        //                 if (bet.title === item.title) {
-        //                     found = true;
-        //                     newArr.push({title: bet.title, amount: bet.amount+parseInt(amount), type: bet.type});
-        //                 } else {
-        //                     newArr.push(bet);
-        //                 }
-        //             });
+                    let found = false;
+                    let newArr = [];
+                    currentBets.forEach((bet) => {
+                        if (bet.title === item.title) {
+                            found = true;
+                            newArr.push({title: bet.title, amount: bet.amount+parseInt(amount), type: bet.type});
+                        } else {
+                            newArr.push(bet);
+                        }
+                    });
     
-        //             if (!found) {
-        //                 currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
-        //             }
-        //             const d = {
-        //                 ...docc.data(),
-        //                 activeBets: found ? newArr : currentBets,
-        //                 balance: docc.data().balance-parseInt(amount),
-        //             };
-        //             setDoc(doc(db, "users", username), d).then(() => {
-        //                 console.log(currentBets);
-        //             });
-        //         }
-        //     });
-        // });
+                    if (!found) {
+                        currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                    }
+                    const d = {
+                        ...docc.data(),
+                        activeBets: found ? newArr : currentBets,
+                        balance: docc.data().balance-parseInt(amount),
+                    };
+                    setDoc(doc(db, "users", username), d).then(() => {
+                        //console.log(currentBets);
+                    });
+                }
+            });
+        });
       }
 
       // subtracting money from user's account
