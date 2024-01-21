@@ -73,7 +73,7 @@ console.log("returning false");
 }
 
 
-const CreateBet = () => {
+const CreateBet = ({ navigation }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [moneyWager, setMoneyWager] = useState('');
@@ -208,13 +208,9 @@ const CreateBet = () => {
                 }
             });
         });
-        navigateToDetail()
+        navigation.navigate('BETS HOME')
       }
   };
-
-  const navigateToDetail = () => {
-    navigation.navigate('BETS HOME');
-    }
 
   const toggleSwitch = () => {
     setType((prev) => !prev);
