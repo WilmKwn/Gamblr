@@ -79,7 +79,6 @@ const BetDetail = ({ route }) => {
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
       <Text style={styles.headerText}>{item.title}</Text>
       <Text style={styles.descriptionText}>{item.description}</Text>
 
@@ -98,10 +97,6 @@ const BetDetail = ({ route }) => {
 
       <Text style={styles.pickOptionText}>Pick Option</Text>
 
-=======
-      <Text style={styles.headerText}>{item.title.split('-')[0]}</Text>
-      
->>>>>>> e80dd71e6d453be3cfb7065897e326a3a08dcff4
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={pressYes} style={styles.button}>
           <Text>{'YES'}</Text>
