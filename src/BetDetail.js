@@ -81,6 +81,23 @@ const BetDetail = ({ route }) => {
     <View style={styles.container}>
       <Text style={styles.headerText}>{item.title}</Text>
       
+      <Text style={styles.descriptionText}>{item.description}</Text>
+
+      <View style={styles.optionsContainer}>
+        <View style={styles.optionBox}>
+          <Text style={styles.optionText}>Yes</Text>
+          <Text style={styles.voteCount}>{item.rightNum}</Text>
+          <Text style={styles.cashAmount}>{item.rightAmount}</Text>
+        </View>
+        <View style={styles.optionBox}>
+          <Text style={styles.optionText}>No</Text>
+          <Text style={styles.voteCount}>{item.leftNum}</Text>
+          <Text style={styles.cashAmount}>{item.leftAmount}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.pickOptionText}>Pick Option</Text>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={pressYes} style={styles.button}>
           <Text>{'YES'}</Text>
