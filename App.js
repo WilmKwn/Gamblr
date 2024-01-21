@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 
 import BetsHome from "./src/BetsHome";
+import BetsMine from "./src/BetsMine"
 import BetDetail from './src/BetDetail';
 import Profile from './src/Profile';
 import Login from "./src/Login";
@@ -19,10 +20,10 @@ function BetsHomeTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="CUSTOM BETS">
-        {() => <BetsHome route={{ params: { data: 'custom' } }} />}
+        {() => <BetsHome />}
       </Tab.Screen>
       <Tab.Screen name="MY BETS">
-        {() => <BetsHome route={{ params: { data: 'mine' } }} />}
+        {() => <BetsMine />}
       </Tab.Screen>
     </Tab.Navigator>
   );
