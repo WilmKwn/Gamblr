@@ -20,7 +20,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const BetDetail = ({ route }) => {
+const BetDetail = ({ navigation, route }) => {
   const { item } = route.params;
 
   const { state, dispatch } = useGlobal();
@@ -113,7 +113,7 @@ const BetDetail = ({ route }) => {
                         balance: docc.data().balance-parseInt(amount),
                     };
                     setDoc(doc(db, "users", username), d).then(() => {
-                        //console.log(currentBets);
+                      navigation.navigate("BETS HOME");
                     });
                 }
             });
@@ -138,8 +138,8 @@ const BetDetail = ({ route }) => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === item.title) {
-                let leftAmount = docc.data().choices[0].cashAmount;
-                let rightAmount = docc.data().choices[1].cashAmount;
+                let leftAmount = docc.data().choices[0].cashVotes;
+                let rightAmount = docc.data().choices[1].cashVotes;
                 let total = leftAmount + rightAmount;
 
                 let participants = docc.data().participants;
@@ -164,6 +164,8 @@ const BetDetail = ({ route }) => {
                                             // no
                                             weight = myAmount / leftAmount;
                                         }
+
+                                        console.log(weight);
 
                                         let newBalance = docc.data().balance + (weight*total);
                                         if (type !== whoWon) {

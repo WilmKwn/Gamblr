@@ -177,38 +177,38 @@ const CreateBet = ({ navigation }) => {
             {cashVotes: 0, numVotes: 0}
           ]
 
+        }).then(() => {
+          getDocs(collection(db, 'users')).then((querySnapshot) => {
+              querySnapshot.forEach((docc) => {
+                  if (docc.id === userNameInput) {
+                      let currentBets = docc.data().activeBets;
+      
+                      let found = false;
+                      let newArr = [];
+                      currentBets.forEach((bet) => {
+                          if (bet.title === betName) {
+                              found = true;
+                              newArr.push({title: bet.title, amount: bet.amount+moneyWagerInt, type: bet.type});
+                          } else {
+                              newArr.push(bet);
+                          }
+                      });
+      
+                      if (!found) {
+                          currentBets.push({title: betName, amount: moneyWagerInt, type: type});
+                      }
+                      const d = {
+                          ...docc.data(),
+                          activeBets: found ? newArr : currentBets,
+                          balance: docc.data().balance-moneyWagerInt,
+                      };
+                      setDoc(doc(db, "users", userNameInput), d).then(() => {
+                        navigation.navigate('BETS HOME')
+                      });
+                  }
+              });
+          });
         });
-        getDocs(collection(db, 'users')).then((querySnapshot) => {
-            querySnapshot.forEach((docc) => {
-                if (docc.id === userNameInput) {
-                    let currentBets = docc.data().activeBets;
-    
-                    let found = false;
-                    let newArr = [];
-                    currentBets.forEach((bet) => {
-                        if (bet.title === betName) {
-                            found = true;
-                            newArr.push({title: bet.title, amount: bet.amount+moneyWagerInt, type: bet.type});
-                        } else {
-                            newArr.push(bet);
-                        }
-                    });
-    
-                    if (!found) {
-                        currentBets.push({title: betName, amount: moneyWagerInt, type: type});
-                    }
-                    const d = {
-                        ...docc.data(),
-                        activeBets: found ? newArr : currentBets,
-                        balance: docc.data().balance-moneyWagerInt,
-                    };
-                    setDoc(doc(db, "users", userNameInput), d).then(() => {
-                        //console.log(currentBets);
-                    });
-                }
-            });
-        });
-        navigation.navigate('BETS HOME')
       }
   };
 
