@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { initializeApp} from 'firebase/app';
@@ -28,9 +28,23 @@ const BetDetail = ({ route }) => {
   const [amount, setAmount] = useState('');
   const [dir, setDir] = useState('');
 
-  const handleFinalizeBet = () => {
+  const [whoWon, setWhoWon] = useState(false);
 
-  }
+  const [check, setCheck] = useState([false, false]);
+
+  useEffect(() => {
+    let creator = '';
+    let active = true;
+    getDocs(collection(db, 'bets')).then((querySnapshot) => {
+        querySnapshot.forEach((docc) => {
+            if (docc.id === item.title) {
+                creator = docc.data().creator;
+                active = docc.data().active;
+            }
+        });
+    });
+    setCheck([username===creator, !active]);
+  }, []);
 
   const handleButtonPress = () => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
@@ -55,7 +69,7 @@ const BetDetail = ({ route }) => {
                 });
             }
         });
-    })
+    });
     getDocs(collection(db, 'users')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === username) {
@@ -80,6 +94,15 @@ const BetDetail = ({ route }) => {
     setDir('No');
   };
 
+  const pressWhoYes = () => {
+    setWhoWon(true);
+  }
+  const pressWhoNo = () => {
+    setWhoWon(false);
+  }
+  const pressFinalize = () => {
+    
+  }
 
   return (
     <View style={styles.container}>
@@ -125,20 +148,24 @@ const BetDetail = ({ route }) => {
 
       <View style={styles.horizontalLine} />
 
-<Text style={styles.finalizeBetTitle}>Finalize Bet</Text>
+    { check==[false,false] && (
+        <View>
+            <Text style={styles.finalizeBetTitle}>Finalize Bet</Text>
 
-<View style={styles.finalizeOptionsContainer}>
-  <TouchableOpacity style={styles.finalizeOptionBox}>
-    <Text style={styles.finalizeOptionText}>Yes</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.finalizeOptionBox}>
-    <Text style={styles.finalizeOptionText}>No</Text>
-  </TouchableOpacity>
-</View>
-
-<TouchableOpacity style={styles.finalizeButton} onPress={handleFinalizeBet}>
-  <Text style={styles.finalizeButtonText}>Submit Finalization</Text>
-</TouchableOpacity>
+            <View style={styles.finalizeOptionsContainer}>
+            <TouchableOpacity onPress={pressWhoYes} style={styles.finalizeOptionBox}>
+                <Text style={styles.finalizeOptionText}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={pressWhoNo} style={styles.finalizeOptionBox}>
+                <Text style={styles.finalizeOptionText}>No</Text>
+            </TouchableOpacity>
+            </View>
+        
+            <TouchableOpacity style={styles.finalizeButton} onPress={pressFinalize}>
+            <Text style={styles.finalizeButtonText}>Submit Finalization</Text>
+            </TouchableOpacity>
+        </View>
+    )}
 
     </View>
   );
