@@ -208,8 +208,13 @@ const CreateBet = () => {
                 }
             });
         });
+        navigateToDetail()
       }
   };
+
+  const navigateToDetail = () => {
+    navigation.navigate('BETS HOME');
+    }
 
   const toggleSwitch = () => {
     setType((prev) => !prev);
