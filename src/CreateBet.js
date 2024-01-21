@@ -1,21 +1,193 @@
 import React, { useState } from 'react';
-import { Switch, Text, View, TextInput, Button, StyleSheet } from 'react-native';
+import { Switch, Text, View, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+
+import { initializeApp } from "firebase/app";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+
+import { useGlobal } from './Globals';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
+  authDomain: "gamblr-b2653.firebaseapp.com",
+  projectId: "gamblr-b2653",
+  storageBucket: "gamblr-b2653.appspot.com",
+  messagingSenderId: "46861839",
+  appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
+  measurementId: "G-T7RM76C2QB"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(app);
+
+function getCurrentFormattedDate() {
+  const currentDate = new Date();
+
+  const year = currentDate.getFullYear().toString().slice(-2); // Get the last 2 digits of the year (YY)
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month (01 - 12)
+  const date = String(currentDate.getDate()).padStart(2, '0'); // Date (01 - 31)
+  const hours = String(currentDate.getHours()).padStart(2, '0'); // Hours (00 - 23)
+  const minutes = String(currentDate.getMinutes()).padStart(2, '0'); // Minutes (00 - 59)
+
+  return year + month + date + hours + minutes;
+}
+
+function confirmDate(month, date, year, hour, minute, amPm) {
+  const currentDate = new Date();
+
+  const Cyear = parseInt(currentDate.getFullYear().toString().slice(-2)); // Get the last 2 digits of the year (YY)
+  const Cmonth = parseInt(String(currentDate.getMonth() + 1).padStart(2, '0')); // Month (01 - 12)
+  const Cdate = parseInt(String(currentDate.getDate()).padStart(2, '0')); // Date (01 - 31)
+  const Chours = parseInt(String(currentDate.getHours()).padStart(2, '0')); // Hours (00 - 23)
+  const Cminutes = parseInt(String(currentDate.getMinutes()).padStart(2, '0')); // Minutes (00 - 59)
+
+  if (parseInt(year) > Cyear) {
+    return true;
+  } else if (parseInt(year) === Cyear) {
+    if (parseInt(month) > Cmonth) {
+      return true;
+    } else if (parseInt(month) === Cmonth) {
+      if (parseInt(date) > Cdate) {
+        return true;
+      } else if (parseInt(date) === Cdate) {
+        if (amPm === 'AM' && hour === '12') {
+          // Special case for 12:00 AM (midnight)
+          return true;
+        } else if (amPm === 'PM' && hour !== '12') {
+          // Special case for 12:00 PM (noon)
+          return true;
+        } else if (parseInt(hour) > Chours) {
+          return true;
+        } else if (parseInt(hour) === Chours) {
+          if (parseInt(minute) > Cminutes) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 
 const CreateBet = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [stockName, setStockName] = useState('');
-  const [stockPrice, setStockPrice] = useState('');
-  const [amount, setAmount] = useState('');
+  const [moneyWager, setMoneyWager] = useState('');
+  const [month, setMonth] = useState('');
+  const [date, setDate] = useState('');
+  const [year, setYear] = useState('');
+  const [hour, setHour] = useState('');
+  const [minute, setMinute] = useState('');
+  const [amPm, setAmPm] = useState('AM'); // Default value is AM
+
   const [type, setType] = useState(false);
 
+  const {state, dispatch} = useGlobal();
+  const usernameInput = state.username;
+
   const handleButtonPress = () => {
+
+    const docRef = doc(db, "users", userNameInput);
+    
+    var userBalance = 0;
+    getDoc(docRef).then((docSnap) => {
+
+      userBalance = docSnap.data().balance;
+
+    });
+
     console.log('Button pressed!');
     console.log('Title:', title);
     console.log('Description:', description);
-    console.log('Stock Name:', stockName);
-    console.log('Stock Price:', stockPrice);
-    console.log('Amount:', amount);
+    console.log('Money Wagering $:', moneyWager);
+    console.log('End Date:', `${month} ${date}, ${year} ${hour}:${minute} ${amPm}`);
+
+    if (title === '' || description === '' || moneyWager === '' || month === '' ||
+           date === '' || year === '' || hour === '' || minute === '') {
+
+      Alert.alert("Please fill out all fields.");
+      return;
+
+    }
+
+    if (isNaN(parseInt(moneyWager)) || parseInt(moneyWager) < 0) {
+      Alert.alert("Please enter a valid number for money wagering.");
+      return;
+    }
+
+    if (parseInt(moneyWager) > userBalance) {
+      Alert.alert("You do not have enough money to make this bet.");
+      return;
+    }
+
+      // doing 24 hour time
+      if (amPm === 'PM') {
+        var temp = parseInt(hour) + 12;
+        setHour(String(temp));
+      }
+
+      // checking if date is valid
+      if (!confirmDate(month, date, year, hour, minute, amPm)) {
+        Alert.alert("Please enter a valid date.");
+        return;
+      }
+
+      // creating variables
+      const endDate = year + month + date + hour + minute;
+      const betName = title + "-" + endDate;
+      const currentDate = getCurrentFormattedDate();
+      const moneyWagerInt = parseInt(moneyWager);
+
+      // creating bet based on type
+      if (type) {
+
+        setDoc(doc(db, "bets", betName), {
+          active: true,
+          creator: userNameInput, // Make sure you define userNameInput
+          description: description,
+          endDate: endDate,
+          startDate: currentDate,
+          particpants: [userNameInput],
+          choices: [
+            {cashVotes: 0, numVotes: 0},
+            {cashVotes: moneyWagerInt, numVotes: 1}
+          ]
+
+        });
+
+      } else {
+        setDoc(doc(db, "bets", betName), {
+          active: true,
+          creator: userNameInput, // Make sure you define userNameInput
+          description: description,
+          endDate: endDate,
+          startDate: currentDate,
+          particpants: [userNameInput],
+          choices: [
+            {cashVotes: moneyWagerInt, numVotes: 1},
+            {cashVotes: 0, numVotes: 0}
+          ]
+
+        });
+      }
+
+      // subtracting money from user's account
+      
+      getDoc(docRef).then((docSnap) => {
+
+        updateDoc(docRef, {
+          balance: docSnap.data().balance - moneyWagerInt
+        }).then(() => {
+          console.log("Balance updated successfully.");
+        });
+
+      });
+
+    // }
   };
 
   const toggleSwitch = () => {
@@ -23,8 +195,8 @@ const CreateBet = () => {
   };
 
   return (
-    <View style={styles.container}>
-        <Text style={styles.header}>Create Bet</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.header}>Create Bet</Text>
       <TextInput
         style={styles.input}
         placeholder="Title"
@@ -37,47 +209,80 @@ const CreateBet = () => {
         value={description}
         onChangeText={(text) => setDescription(text)}
       />
-      <Text style={styles.header}>Stock (optional)</Text>
+      {/* Replace "Stock Optional" with "Money Wagering" */}
+      <Text style={styles.header}>Money Wagering</Text>
       <TextInput
         style={styles.input}
-        placeholder="Stock Name"
-        value={stockName}
-        onChangeText={(text) => setStockName(text)}
+        placeholder="Money Wagering"
+        value={moneyWager}
+        onChangeText={(text) => setMoneyWager(text)}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Stock Price"
-        value={stockPrice}
-        onChangeText={(text) => setStockPrice(text)}
-      />
-      <Text style={styles.header}>Amount</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Amount"
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-      />
-      <View style={styles.toggleContainer} flexDirection="row">
-        <Text style={styles.header}>{stockName=="" ? 'YES' : 'OVER'}</Text>
-        <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={type ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch}
-            value={type}
+      {/* Bold "End Date" Text */}
+      <Text style={styles.header}>End Date</Text>
+      {/* Separate input boxes for Month, Date, Year */}
+      <View style={styles.dateInputContainer}>
+        <TextInput
+          style={styles.dateInput}
+          placeholder="Month"
+          value={month}
+          onChangeText={(text) => setMonth(text)}
         />
-        <Text style={styles.header}>{stockName=="" ? 'NO' : 'UNDER'}</Text>
+        <TextInput
+          style={styles.dateInput}
+          placeholder="Date"
+          value={date}
+          onChangeText={(text) => setDate(text)}
+        />
+        <TextInput
+          style={styles.dateInput}
+          placeholder="Year"
+          value={year}
+          onChangeText={(text) => setYear(text)}
+        />
+      </View>
+      {/* Separate input boxes for Hour, Minute, and AM/PM */}
+      <View style={styles.timeInputContainer}>
+        <TextInput
+          style={styles.timeInput}
+          placeholder="Hour"
+          value={hour}
+          onChangeText={(text) => setHour(text)}
+        />
+        <TextInput
+          style={styles.timeInput}
+          placeholder="Minute"
+          value={minute}
+          onChangeText={(text) => setMinute(text)}
+        />
+        <TouchableOpacity
+          style={styles.amPmButton}
+          onPress={() => setAmPm(amPm === 'AM' ? 'PM' : 'AM')}
+        >
+          <Text style={styles.amPmText}>{amPm}</Text>
+        </TouchableOpacity>
+      </View>
+      {/* End Date Input */}
+      <View style={styles.toggleContainer} flexDirection="row">
+        <Text style={styles.header}>{moneyWager === "" ? 'NO' : 'UNDER'}</Text>
+        <Switch
+          trackColor={{ false: '#767577', true: '#81b0ff' }}
+          thumbColor={type ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleSwitch}
+          value={type}
+        />
+        <Text style={styles.header}>{moneyWager === "" ? 'YES' : 'OVER'}</Text>
       </View>
       <Button title="Submit" onPress={handleButtonPress} />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: 16,
   },
   header: {
     fontSize: 20,
@@ -90,6 +295,53 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
+    width: '80%',
+  },
+  dateInputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    width: '80%',
+  },
+  dateInput: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    marginRight: 8,
+  },
+  timeInputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    width: '80%',
+  },
+  timeInput: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    marginRight: 8,
+  },
+  amPmButton: {
+    width: 50,
+    height: 40,
+    backgroundColor: '#3498db',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  amPmText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '80%',
   },
 });
 
