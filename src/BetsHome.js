@@ -8,6 +8,7 @@ import { collection, getDocs, setDoc, doc, onSnapshot, query } from "firebase/fi
 
 import { useGlobal } from './Globals';
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
   authDomain: "gamblr-b2653.firebaseapp.com",
@@ -19,6 +20,77 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+
+
+function getCurrentFormattedDate() {
+    const currentDate = new Date();
+  
+    const year = currentDate.getFullYear().toString().slice(-2); // Get the last 2 digits of the year (YY)
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month (01 - 12)
+    const date = String(currentDate.getDate()).padStart(2, '0'); // Date (01 - 31)
+    const hours = String(currentDate.getHours()).padStart(2, '0'); // Hours (00 - 23)
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0'); // Minutes (00 - 59)
+  
+    return year + month + date + hours + minutes;
+  }
+  
+  function confirmDate(month, date, year, hour, minute, amPm) {
+    const currentDate = new Date();
+  
+    const Cyear = parseInt(currentDate.getFullYear().toString().slice(-2)); // Get the last 2 digits of the year (YY)
+    const Cmonth = parseInt(String(currentDate.getMonth() + 1).padStart(2, '0')); // Month (01 - 12)
+    const Cdate = parseInt(String(currentDate.getDate()).padStart(2, '0')); // Date (01 - 31)
+    const Chours = parseInt(String(currentDate.getHours()).padStart(2, '0')); // Hours (00 - 23)
+    const Cminutes = parseInt(String(currentDate.getMinutes()).padStart(2, '0')); // Minutes (00 - 59)
+  
+    if (parseInt(year) > Cyear) {
+      return true;
+    } else if (parseInt(year) === Cyear) {
+      if (parseInt(month) > Cmonth) {
+        return true;
+      } else if (parseInt(month) === Cmonth) {
+        if (parseInt(date) > Cdate) {
+          return true;
+        } else if (parseInt(date) === Cdate) {
+          if (amPm === 'AM' && hour === '12') {
+            // Special case for 12:00 AM (midnight)
+            return true;
+          } else if (amPm === 'PM' && hour !== '12') {
+            // Special case for 12:00 PM (noon)
+            return true;
+          } else if (parseInt(hour) > Chours) {
+            return true;
+          } else if (parseInt(hour) === Chours) {
+            if (parseInt(minute) > Cminutes) {
+              console.log("returning true");
+              return true;
+            }
+          }
+        }
+      }
+    }
+  console.log("returning false");
+    return false;
+  
+}
+
+
+// function updateActive() {
+
+//     const querySnapshot = getDocs(collection(db, 'bets'));
+//     querySnapshot.forEach((doc) => {
+
+//         // updating active
+//         const endDate = doc.data().endDate;
+//         const active = confirmDate(endDate.slice(0, 2), endDate.slice(2, 4), endDate.slice(4, 6), endDate.slice(6, 8), endDate.slice(8, 10), endDate.slice(10, 12));
+
+//         if ()
+//         // doc.data() is never undefined for query doc snapshots
+//         console.log(doc.id, " => ", doc.data());
+//       });
+// }
+
 
 export default function StockBet() {
     const {state, dispath} = useGlobal();
