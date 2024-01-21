@@ -70,7 +70,7 @@ const BetDetail = ({ route }) => {
                 });
             }
         });
-    })
+    });
   };
 
   const pressYes = () => {
