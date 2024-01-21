@@ -3,7 +3,7 @@ import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet }
 import { useNavigation } from '@react-navigation/native';
 
 import { initializeApp} from 'firebase/app';
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, updateDoc } from "firebase/firestore";
 import { collection, getDocs, setDoc, doc, onSnapshot, query } from "firebase/firestore";
 
 import { useGlobal } from './Globals';
@@ -76,7 +76,28 @@ function getCurrentFormattedDate() {
 }
 
 
-// function updateActive() {
+function updateActive() {
+
+    getDocs(collection(db, 'bets')).then((querySnapshot) => {
+
+        querySnapshot.forEach((docc) => {
+            // updating active
+            const endDate = docc.data().endDate;
+            const active = confirmDate(endDate.slice(0, 2), endDate.slice(2, 4), endDate.slice(4, 6), endDate.slice(6, 8), endDate.slice(8, 10), endDate.slice(10, 12));
+
+            const d = {
+                ...docc.data(),
+                active: active,
+                merge: true,
+            }
+            setDoc(doc(db, 'bets', docc.id), d);
+
+        });
+
+    });
+
+    
+}
 
 //     const querySnapshot = getDocs(collection(db, 'bets'));
 //     querySnapshot.forEach((doc) => {
@@ -85,14 +106,16 @@ function getCurrentFormattedDate() {
 //         const endDate = doc.data().endDate;
 //         const active = confirmDate(endDate.slice(0, 2), endDate.slice(2, 4), endDate.slice(4, 6), endDate.slice(6, 8), endDate.slice(8, 10), endDate.slice(10, 12));
 
-//         if ()
-//         // doc.data() is never undefined for query doc snapshots
-//         console.log(doc.id, " => ", doc.data());
+//         if (!active) {
+//             setDoc(doc(db, 'bets', doc.id), {active: false}, {merge: true});
+//         }
+
 //       });
 // }
 
 
 export default function StockBet() {
+
     const {state, dispath} = useGlobal();
 
     const [bets, setBets] = React.useState([]);
@@ -101,6 +124,9 @@ export default function StockBet() {
     const navigation = useNavigation();
 
     React.useEffect(() => {
+
+        updateActive();
+        
         const q = query(collection(db, 'bets'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const arr = [];
