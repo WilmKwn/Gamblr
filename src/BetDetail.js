@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { initializeApp} from 'firebase/app';
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, updateDoc } from "firebase/firestore";
 import { collection, getDocs, setDoc, doc, onSnapshot, query } from "firebase/firestore";
 
 import { useGlobal } from './Globals';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
@@ -71,41 +72,58 @@ const BetDetail = ({ route }) => {
         });
     });
 
-    ggetDocs(collection(db, 'users')).then((querySnapshot) => {
+    getDocs(collection(db, 'users')).then((querySnapshot) => {
       querySnapshot.forEach((docc) => {
           if (docc.id === username) {
               let currentBets = docc.data().activeBets;
-              
+  
               // Find the index of the existing bet (if it exists) in the array
               const existingBetIndex = currentBets.findIndex(bet => bet.title === item.title);
   
+              console.log("bet index: ", existingBetIndex);
+  
               if (existingBetIndex !== -1) {
-                  // Modify the existing bet's details
-                  currentBets[existingBetIndex] = {
-                      title: item.title,
-                      amount: amount,
-                      type: (dir === 'Yes'),
-                  };
+
+                const toUpdate = doc(db, "users", username);
+                getDoc(toUpdate).then((docc) => {
+
+                  updateDoc(toUpdate, {
+
+                    activeBets[existingBetIndex]: {amount: docc.data().activeBets[existingBetIndex].amount + amount,
+                      type: docc.data().activeBets[existingBetIndex].type,
+                      title: docc.data().activeBets[existingBetIndex].title}
+
+                  }).then(() => {
+                    console.log("Document successfully updated!");
+                });
+              })
+              
               } else {
                   // If the bet doesn't exist, push a new one
+                  console.log("Adding a new bet:", item.title);
                   currentBets.push({
                       title: item.title,
                       amount: amount,
                       type: (dir === 'Yes'),
                   });
+
+
+                  const d = {
+                    ...docc.data(),
+                    activeBets: currentBets,
+                    balance: docc.data().balance - amount, // Subtract the amount from the balance
+                };
+    
+                setDoc(doc(db, "users", username), d).then(() => {
+                    console.log("Updated bets:", currentBets);
+                });
               }
   
-              const d = {
-                  ...docc.data(),
-                  activeBets: currentBets,
-              };
-  
-              setDoc(doc(db, "users", username), d).then(() => {
-                  console.log(currentBets);
-              });
+              
           }
       });
   });
+  
   
     getDocs(collection(db, 'users')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
