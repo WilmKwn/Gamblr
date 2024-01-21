@@ -268,7 +268,7 @@ const CreateBet = () => {
       </View>
       {/* End Date Input */}
       <View style={styles.toggleContainer} flexDirection="row">
-        <Text style={styles.header}>{moneyWager === "" ? 'NO' : 'UNDER'}</Text>
+        <Text style={styles.header}>{moneyWager === "" ? 'NO' : 'NO'}</Text>
         <Switch
           trackColor={{ false: '#767577', true: '#81b0ff' }}
           thumbColor={type ? '#f5dd4b' : '#f4f3f4'}
@@ -276,7 +276,7 @@ const CreateBet = () => {
           onValueChange={toggleSwitch}
           value={type}
         />
-        <Text style={styles.header}>{moneyWager === "" ? 'YES' : 'OVER'}</Text>
+        <Text style={styles.header}>{moneyWager === "" ? 'YES' : 'YES'}</Text>
       </View>
       <Button title="Submit" onPress={handleButtonPress} />
     </ScrollView>

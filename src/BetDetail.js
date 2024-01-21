@@ -46,12 +46,16 @@ const BetDetail = ({ route }) => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === item.title) {
+
                 let index = (dir === 'Yes') ? 1 : 0;
+
                 let choicesArr = docc.data().choices;
+
                 choicesArr[index].numVotes += 1;
                 choicesArr[index].cashVotes += parseInt(amount);
 
                 let arr = docc.data().participants;
+
                 if (!arr.includes(username)) {
                     arr.push(username);
                 }
@@ -66,21 +70,43 @@ const BetDetail = ({ route }) => {
             }
         });
     });
-    getDocs(collection(db, 'users')).then((querySnapshot) => {
-        querySnapshot.forEach((docc) => {
-            if (docc.id === username) {
-                let currentBets = docc.data().activeBets;
-                currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
-                const d = {
-                    ...docc.data(),
-                    activeBets: currentBets,
-                };
-                setDoc(doc(db, "users", username), d).then(() => {
-                    console.log(currentBets);
-                });
-            }
-        });
-    });
+
+    ggetDocs(collection(db, 'users')).then((querySnapshot) => {
+      querySnapshot.forEach((docc) => {
+          if (docc.id === username) {
+              let currentBets = docc.data().activeBets;
+              
+              // Find the index of the existing bet (if it exists) in the array
+              const existingBetIndex = currentBets.findIndex(bet => bet.title === item.title);
+  
+              if (existingBetIndex !== -1) {
+                  // Modify the existing bet's details
+                  currentBets[existingBetIndex] = {
+                      title: item.title,
+                      amount: amount,
+                      type: (dir === 'Yes'),
+                  };
+              } else {
+                  // If the bet doesn't exist, push a new one
+                  currentBets.push({
+                      title: item.title,
+                      amount: amount,
+                      type: (dir === 'Yes'),
+                  });
+              }
+  
+              const d = {
+                  ...docc.data(),
+                  activeBets: currentBets,
+              };
+  
+              setDoc(doc(db, "users", username), d).then(() => {
+                  console.log(currentBets);
+              });
+          }
+      });
+  });
+  
   };
 
   const pressYes = () => {

@@ -35,7 +35,7 @@ function getCurrentFormattedDate() {
     return year + month + date + hours + minutes;
   }
   
-  function confirmDate(month, date, year, hour, minute, amPm) {
+  function confirmDate(year, month, date, hour, minute, amPm) {
     const currentDate = new Date();
   
     const Cyear = parseInt(currentDate.getFullYear().toString().slice(-2)); // Get the last 2 digits of the year (YY)
@@ -43,6 +43,7 @@ function getCurrentFormattedDate() {
     const Cdate = parseInt(String(currentDate.getDate()).padStart(2, '0')); // Date (01 - 31)
     const Chours = parseInt(String(currentDate.getHours()).padStart(2, '0')); // Hours (00 - 23)
     const Cminutes = parseInt(String(currentDate.getMinutes()).padStart(2, '0')); // Minutes (00 - 59)
+
   
     if (parseInt(year) > Cyear) {
       return true;
@@ -93,7 +94,7 @@ function updateActive() {
             setDoc(doc(db, 'bets', docc.id), d);
 
         });
-
+        console.log("done");
     });
 
     
