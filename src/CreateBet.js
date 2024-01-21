@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Switch, Text, View, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getFirestore, getDoc, updateDoc, } from "firebase/firestore";
+import { doc, setDoc, getFirestore, getDoc, updateDoc, getDocs, collection } from "firebase/firestore";
 
 import { useGlobal } from './Globals';
 
@@ -180,29 +180,29 @@ const CreateBet = () => {
         });
         getDocs(collection(db, 'users')).then((querySnapshot) => {
             querySnapshot.forEach((docc) => {
-                if (docc.id === username) {
+                if (docc.id === userNameInput) {
                     let currentBets = docc.data().activeBets;
     
                     let found = false;
                     let newArr = [];
                     currentBets.forEach((bet) => {
-                        if (bet.title === item.title) {
+                        if (bet.title === betName) {
                             found = true;
-                            newArr.push({title: bet.title, amount: bet.amount+parseInt(amount), type: bet.type});
+                            newArr.push({title: bet.title, amount: bet.amount+moneyWagerInt, type: bet.type});
                         } else {
                             newArr.push(bet);
                         }
                     });
     
                     if (!found) {
-                        currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                        currentBets.push({title: betName, amount: moneyWagerInt, type: type});
                     }
                     const d = {
                         ...docc.data(),
                         activeBets: found ? newArr : currentBets,
-                        balance: docc.data().balance-parseInt(amount),
+                        balance: docc.data().balance-moneyWagerInt,
                     };
-                    setDoc(doc(db, "users", username), d).then(() => {
+                    setDoc(doc(db, "users", userNameInput), d).then(() => {
                         //console.log(currentBets);
                     });
                 }
@@ -211,15 +211,16 @@ const CreateBet = () => {
       }
 
       // subtracting money from user's account
-      getDoc(docRef).then((docSnap) => {
+      
+    //   getDoc(docRef).then((docSnap) => {
 
-        updateDoc(docRef, {
-          balance: docSnap.data().balance - moneyWagerInt
-        }).then(() => {
-          console.log("Balance updated successfully.");
-        });
+    //     updateDoc(docRef, {
+    //       balance: docSnap.data().balance - moneyWagerInt
+    //     }).then(() => {
+    //       console.log("Balance updated successfully.");
+    //     });
 
-      });
+    //   });
 
   };
 
