@@ -47,7 +47,6 @@ const BetDetail = ({ route }) => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === item.title) {
-
                 let index = (dir === 'Yes') ? 1 : 0;
 
                 let choicesArr = docc.data().choices;
@@ -56,17 +55,18 @@ const BetDetail = ({ route }) => {
                 choicesArr[index].cashVotes += parseInt(amount);
 
                 let arr = docc.data().participants;
-
+                
                 if (!arr.includes(username)) {
                     arr.push(username);
                 }
+
                 const d = {
                     ...docc.data(),
                     choices: choicesArr,
                     participants: arr,
                 };
                 setDoc(doc(db, "bets", item.title), d).then(() => {
-                    console.log(arr);
+                    // console.log(arr);
                 });
             }
         });
@@ -97,7 +97,7 @@ const BetDetail = ({ route }) => {
                     balance: docc.data().balance-parseInt(amount),
                 };
                 setDoc(doc(db, "users", username), d).then(() => {
-                    console.log(currentBets);
+                    //console.log(currentBets);
                 });
             }
         });
