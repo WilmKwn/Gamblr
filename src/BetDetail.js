@@ -133,7 +133,7 @@ const BetDetail = ({ route }) => {
                 const d = {
                     ...docc.data(),
                     activeBets: currentBets,
-                    balance: docc.data().balance-amount,
+                    balance: parseInt(docc.data().balance)-parseInt(amount),
                 };
                 setDoc(doc(db, "users", username), d).then(() => {
                     console.log(currentBets);
