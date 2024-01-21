@@ -97,12 +97,12 @@ const BetDetail = ({ route }) => {
     setWhoWon(false);
   }
   const pressFinalize = () => {
-
+    
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>{item.title}</Text>
+      <Text style={styles.headerText}>{item.title.split('-')[0]}</Text>
       
       <Text style={styles.descriptionText}>{item.description}</Text>
 
