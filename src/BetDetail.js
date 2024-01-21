@@ -107,6 +107,22 @@ const BetDetail = ({ route }) => {
       });
   });
   
+    getDocs(collection(db, 'users')).then((querySnapshot) => {
+        querySnapshot.forEach((docc) => {
+            if (docc.id === username) {
+                let currentBets = docc.data().activeBets;
+                currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                const d = {
+                    ...docc.data(),
+                    activeBets: currentBets,
+                    balance: docc.data().balance-amount,
+                };
+                setDoc(doc(db, "users", username), d).then(() => {
+                    console.log(currentBets);
+                });
+            }
+        });
+    });
   };
 
   const pressYes = () => {
@@ -123,12 +139,63 @@ const BetDetail = ({ route }) => {
     setWhoWon(false);
   }
   const pressFinalize = () => {
+    getDocs(collection(db, 'bets')).then((querySnapshot) => {
+        querySnapshot.forEach((docc) => {
+            if (docc.id === item.title) {
+                let leftAmount = docc.data().choices[0].cashAmount;
+                let rightAmount = docc.data().choices[1].cashAmount;
+                let total = leftAmount + rightAmount;
 
+                let participants = docc.data().participants;
+
+                participants.forEach((p) => {
+
+                    getDocs(collection(db, 'users')).then((querySnapshot) => {
+                        querySnapshot.forEach((docc) => {
+                            if (docc.id === p) {
+                                let myBets = docc.data().activeBets;
+                                myBets.forEach((bet) => {
+                                    console.log(bet.title, " ", item.title);
+                                    if (bet.title === item.title) {
+                                        let myAmount = bet.amount;
+                                        let type = bet.type;
+
+                                        let weight = 0;
+                                        if (type) {
+                                            // yes
+                                            weight = myAmount / rightAmount;
+                                        } else {
+                                            // no
+                                            weight = myAmount / leftAmount;
+                                        }
+
+                                        let newBalance = docc.data().balance + (weight*total);
+                                        if (type !== whoWon) {
+                                            newBalance = docc.data().balance;
+                                        }
+                                        const d = {
+                                            ...docc.data(),
+                                            balance: newBalance,
+                                        }
+                                        setDoc(doc(db, "users", p), d).then(() => {
+                                            console.log("finalized");
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
+
+                });
+
+            }
+        });
+    });
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>{item.title}</Text>
+      <Text style={styles.headerText}>{item.title.split('-')[0]}</Text>
       
       <Text style={styles.descriptionText}>{item.description}</Text>
 
