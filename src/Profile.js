@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 
 import {initializeApp} from 'firebase/app';
 import { getFirestore, updateDoc } from "firebase/firestore";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore"; 
+import { doc, getDoc, collection, getDocs, onSnapshot } from "firebase/firestore"; 
 
 import { useGlobal } from './Globals';
 
@@ -17,61 +17,62 @@ const firebaseConfig = {
   measurementId: "G-T7RM76C2QB"
 };
 
-const {state, dispatch} = useGlobal()
-
-const usernameInput = state.username;
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
 const Profile = ({ navigation }) => {
+    const {state, dispatch} = useGlobal();
 
-  // Implement logic to cash out here using the value of `moneyAmount`.
-  const docRef = doc(db, "users", usernameInput);
-  getDoc(docRef).then((docSnap) => {
+    const [user, setUser] = useState({});
 
-  const user = {
-    name: docSnap.data().name,
-    balance: docSnap.data().balance,
-    // name: username,
-    // balance: currentBalance,
-  };
-
-});
-
-  const [moneyAmount, setMoneyAmount] = useState('');
-
-  const handleAddMoney = () => {
-
+    const usernameInput = state.username;
     // Implement logic to cash out here using the value of `moneyAmount`.
-    const docRef = doc(db, "users", usernameInput);
 
-    // Assuming moneyAmount is a string input, parse it to a floating-point number
-    const inputMoney = parseFloat(moneyAmount);
+    useEffect(() => {
+        const docRef = doc(db, "users", usernameInput);
+        getDoc(docRef).then((docSnap) => {
+            setUser({
+                name: docSnap.id,
+                balance: docSnap.data().balance,
+            })
+        });
+    }, []);
 
-    getDoc(docRef).then((docSnap) => {
+    const [moneyAmount, setMoneyAmount] = useState('');
 
-        if (isNaN(inputMoney)) {
-            // Handle the case where moneyAmount is not a valid number
-            console.log("Invalid moneyAmount input. Please enter a valid number.");
-        } else {
-            // console.log("moneyAmount is", moneyAmount);
+    const handleAddMoney = () => {
+
+        // Implement logic to cash out here using the value of `moneyAmount`.
+        const docRef = doc(db, "users", usernameInput);
+
+        // Assuming moneyAmount is a string input, parse it to a floating-point number
+        const inputMoney = parseFloat(moneyAmount);
+
+        getDoc(docRef).then((docSnap) => {
+
+            if (isNaN(inputMoney)) {
+                // Handle the case where moneyAmount is not a valid number
+                Alert.alert("Invalid moneyAmount input. Please enter a valid number.")
+            } else {
+                // console.log("moneyAmount is", moneyAmount);
 
                 // Update the balance only if moneyAmount is a valid number and there are sufficient funds
+                const newBalance = docSnap.data().balance + inputMoney;
                 updateDoc(docRef, {
-                    balance: docSnap.data().balance + inputMoney
+                    balance: newBalance
                 }).then(() => {
+                    setUser({
+                        name: user.name,
+                        balance: newBalance
+                    })
                     console.log("Balance updated successfully.");
                 });
-            
-        }
-    });
-
-  };
+            }
+        });
+    };
 
   const handleCashOut = () => {
     // Implement logic to cash out here using the value of `moneyAmount`.
@@ -84,18 +85,23 @@ const Profile = ({ navigation }) => {
 
         if (isNaN(inputMoney)) {
             // Handle the case where moneyAmount is not a valid number
-            console.log("Invalid moneyAmount input. Please enter a valid number.");
+            Alert.alert("Invalid moneyAmount input. Please enter a valid number.")
         } else {
             // console.log("moneyAmount is", moneyAmount);
 
             if (docSnap.data().balance - inputMoney < 0) {
                 // Handle insufficient funds
-                console.log("Insufficient funds");
+                Alert.alert("Insufficient funds");
             } else {
                 // Update the balance only if moneyAmount is a valid number and there are sufficient funds
+                const newBalance = docSnap.data().balance - inputMoney;
                 updateDoc(docRef, {
-                    balance: docSnap.data().balance - inputMoney
+                    balance: newBalance
                 }).then(() => {
+                    setUser({
+                        name: user.name,
+                        balance: newBalance
+                    })
                     console.log("Balance updated successfully.");
                 });
             }

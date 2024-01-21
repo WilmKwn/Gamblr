@@ -2,26 +2,53 @@ import * as React from 'react';
 import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+import { initializeApp} from 'firebase/app';
+import { getFirestore } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc, onSnapshot, query } from "firebase/firestore";
+
 import { useGlobal } from './Globals';
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
+  authDomain: "gamblr-b2653.firebaseapp.com",
+  projectId: "gamblr-b2653",
+  storageBucket: "gamblr-b2653.appspot.com",
+  messagingSenderId: "46861839",
+  appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
+  measurementId: "G-T7RM76C2QB"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 export default function StockBet({route}) {
-    const {data} = route?.params.data;
+    const {data} = route?.params;
+    console.log(data)
 
     const {state, dispath} = useGlobal();
 
     const [bets, setBets] = React.useState([]);
 
-    const betsData = [
-        {title: "bet1", count: 0, total: 0, yesOrNo: false},
-        {title: "bet2", count: 0, total: 0, yesOrNo: false},
-        {title: "bet3", count: 0, total: 0, yesOrNo: false},
-        {title: "bet4", count: 0, total: 0, yesOrNo: false},
-    ]
-
     const navigation = useNavigation();
 
     React.useEffect(() => {
-        setBets(betsData);
+        const q = query(collection(db, 'bets'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const arr = [];
+            snapshot.forEach((doc) => {
+                const temp = doc.data();
+                const d = {
+                    title: doc.id,
+                    leftNum: temp.choices[0].numVotes,
+                    leftAmount: temp.choices[0].cashVotes,
+                    rightNum: temp.choices[1].numVotes,
+                    rightAmount: temp.choices[1].cashVotes,
+                    timeLeft: temp.endDate,
+                }
+                arr.push(d);
+            });
+            setBets(arr);
+        });
+        return () => unsubscribe();
     }, []);
 
     React.useLayoutEffect(() => {
@@ -59,45 +86,48 @@ export default function StockBet({route}) {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             <FlatList
-                data={bets}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => navigateToDetail(item)}>
-                        <View style={styles.listItem}>
-                            <Text style={styles.text}>{item.title}</Text>
-                            <Text style={styles.countTotalText}>
-                                Count: {item.count}, Total: {item.total}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                )}
-                ListHeaderComponent={
-                    <View style={styles.container}>
+            data={bets}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigateToDetail(item)}>
+                <View style={styles.listItem}>
+                    <Text style={styles.title}>{item.title.split('-')[0]}</Text>
+                    <View style={styles.countContainer}>
+                    <Text style={styles.countText}># NO: {item.leftNum}</Text>
+                    <Text style={styles.countText}># YES: {item.rightNum}</Text>
                     </View>
-                }
+                    <View style={styles.amountContainer}>
+                    <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
+                    <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                    </View>
+                </View>
+                </TouchableOpacity>
+            )}
+            ListHeaderComponent={
+                <View style={styles.headerContainer}>
+                {/* Your header content goes here */}
+                </View>
+            }
             />
-            <TouchableOpacity onPress={() => {navigateToCreate()}}>
-                <Image
-                    source={require('../images/plus_logo.png')}
-                    style={{
-                        position: 'absolute',
-                        bottom: 50,
-                        right: 20,
-                        width: 50,
-                        height: 50,
-                    }}
-                />
+            <TouchableOpacity onPress={() => navigateToCreate()} style={styles.createButton}>
+            <Image
+                source={require('../images/plus_logo.png')}
+                style={styles.createButtonIcon}
+            />
             </TouchableOpacity>
         </View>
-
     );
-}
-
+};
+    
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#fff',
+    },
+    headerContainer: {
+    // Header styles go here
     },
     listItem: {
         borderBottomWidth: 1,
@@ -105,20 +135,41 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingLeft: 10,
     },
-    text: {
-        fontSize: 32,
-        fontWeight: "bold",
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    countTotalText: {
+    countContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 8,
+    },
+    countText: {
         fontSize: 16,
         color: '#555',
     },
-    searchInput: {
-        fontSize: 18,
-        padding: 8,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 8,
-        marginBottom: 16,
-    }
+    amountContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 4,
+    },
+    amountText: {
+        fontSize: 16,
+        color: '#555',
+    },
+    createButton: {
+        position: 'absolute',
+        bottom: 50,
+        right: 20,
+        backgroundColor: '#007BFF',
+        borderRadius: 25,
+        padding: 10,
+    },
+    createButtonIcon: {
+        width: 30,
+        height: 30,
+    },
 });

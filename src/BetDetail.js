@@ -1,26 +1,92 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
+import { initializeApp} from 'firebase/app';
+import { getFirestore } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc, onSnapshot, query } from "firebase/firestore";
+
+import { useGlobal } from './Globals';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
+  authDomain: "gamblr-b2653.firebaseapp.com",
+  projectId: "gamblr-b2653",
+  storageBucket: "gamblr-b2653.appspot.com",
+  messagingSenderId: "46861839",
+  appId: "1:46861839:web:314a8c0d9dad6b211d9d7a",
+  measurementId: "G-T7RM76C2QB"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const BetDetail = ({route}) => {
     const { item } = route.params;
 
+    const {state, dispatch} = useGlobal();
+    const username = state.username;
+
   const [amount, setAmount] = useState('');
 
-  const handleButtonPress = () => {
+  const [dir, setDir] = useState('');
 
+  const handleButtonPress = () => {
+    getDocs(collection(db, 'bets')).then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            if (doc.id === item.title) {
+                let index = (dir === 'Yes') ? 1 : 0;
+                let choicesArr = doc.data().choices;
+                choicesArr[index].numVotes += 1;
+                choicesArr[index].cashVotes += amount;
+
+                let arr = doc.data().participants;
+                arr.push(username);
+                const d = {
+                    ...doc.data(),
+                    choices: choicesArr,
+                    participants: arr,
+                };
+                setDoc(doc(db, "users", username), data).then(() => {
+                    console.log(arr);
+                });
+                return;
+            }
+        });
+    })
   };
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'bets'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const arr = [];
+        snapshot.forEach((doc) => {
+            const temp = doc.data();
+            const d = {
+
+            }
+            arr.push(d);
+        });
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const pressYes = () => {
+    setDir('Yes');
+  }
+  const pressNo = () => {
+    setDir('No');
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>{item.title}</Text>
       
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text>{item.yesOrNo ? 'YES' : 'OVER'}</Text>
+        <TouchableOpacity onPress={pressYes} style={styles.button}>
+          <Text>{'YES'}</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.button}>
-          <Text>{item.yesOrNo ? 'NO' : 'UNDER'}</Text>
+        <TouchableOpacity onPress={pressNo} style={styles.button}>
+          <Text>{'NO'}</Text>
         </TouchableOpacity>
       </View>
       

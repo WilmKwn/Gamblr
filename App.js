@@ -18,9 +18,6 @@ const Tab = createBottomTabNavigator();
 function BetsHomeTabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="STOCK BETS">
-        {() => <BetsHome route={{ params: { data: 'stock' } }} />}
-      </Tab.Screen>
       <Tab.Screen name="CUSTOM BETS">
         {() => <BetsHome route={{ params: { data: 'custom' } }} />}
       </Tab.Screen>

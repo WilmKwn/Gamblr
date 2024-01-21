@@ -65,7 +65,7 @@ const Login = ({ navigation }) => {
                     setDoc(doc(db, "users", username), data).then(() => {
                         dispatch({ type: 'UPDATE_USERNAME', payload: username });
                         navigation.replace('BETS HOME');
-                    })
+                    });
                 }
             })
         }
