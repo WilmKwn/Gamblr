@@ -84,20 +84,36 @@ const BetDetail = ({ route }) => {
   
               if (existingBetIndex !== -1) {
 
-              const toUpdate = doc(db, "users", username);
-               getDoc(toUpdate).then((docc) => {
+                const collectionRef = collection(db, "users");
+                const docRefTemp = doc(collectionRef, username);
 
-               updateDoc(toUpdate, {
+                getDoc(docRefTemp).then((docSnapshot) => {
 
-                    // activeBets[existingBetIndex]: amount: docc.data().activeBets[existingBetIndex].amount + amount
-                    // type: docc.data().activeBets[existingBetIndex].type,
-                    // title: docc.data().activeBets[existingBetIndex].title
+                  if (docSnapshot.exists()) {
+                    const data = docSnapshot.data();
 
-                 }).then(() => {
+                    const newVal = data.activeBets[existingBetIndex].amount + amount;
 
-                  console.log("Document successfully updated!");
-                 });
-              })
+                    setDoc(docRefTemp, {)
+
+                  } else {
+                    console.log("No such document!");
+                  }
+
+              // const toUpdate = doc(db, "users", username);
+              //  getDoc(toUpdate).then((docc) => {
+
+              //  setDoc(toUpdate, {
+
+              //       // activeBets[existingBetIndex]: amount: docc.data().activeBets[existingBetIndex].amount + amount
+              //       // type: docc.data().activeBets[existingBetIndex].type,
+              //       // title: docc.data().activeBets[existingBetIndex].title
+
+              //    }).then(() => {
+
+              //     console.log("Document successfully updated!");
+              //    });
+              // })
               
               } else {
                   // If the bet doesn't exist, push a new one
