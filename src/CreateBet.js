@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Switch, Text, View, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { doc, setDoc, getFirestore, getDoc, updateDoc } from "firebase/firestore";
 
 import { useGlobal } from './Globals';
 
@@ -62,13 +61,14 @@ function confirmDate(month, date, year, hour, minute, amPm) {
           return true;
         } else if (parseInt(hour) === Chours) {
           if (parseInt(minute) > Cminutes) {
+            console.log("returning true");
             return true;
           }
         }
       }
     }
   }
-
+console.log("returning false");
   return false;
 }
 
@@ -87,24 +87,26 @@ const CreateBet = () => {
   const [type, setType] = useState(false);
 
   const {state, dispatch} = useGlobal();
-  const usernameInput = state.username;
+  const userNameInput = state.username;
 
   const handleButtonPress = () => {
 
     const docRef = doc(db, "users", userNameInput);
     
-    var userBalance = 0;
+    var userBalance;
     getDoc(docRef).then((docSnap) => {
+
+      // console.log("CHECKING userBalance:", docSnap.data().balance);
 
       userBalance = docSnap.data().balance;
 
     });
 
-    console.log('Button pressed!');
-    console.log('Title:', title);
-    console.log('Description:', description);
-    console.log('Money Wagering $:', moneyWager);
-    console.log('End Date:', `${month} ${date}, ${year} ${hour}:${minute} ${amPm}`);
+    // console.log('Button pressed!');
+    // console.log('Title:', title);
+    // console.log('Description:', description);
+    // console.log('Money Wagering $:', moneyWager);
+    // console.log('End Date:', `${month} ${date}, ${year} ${hour}:${minute} ${amPm}`);
 
     if (title === '' || description === '' || moneyWager === '' || month === '' ||
            date === '' || year === '' || hour === '' || minute === '') {
@@ -118,6 +120,9 @@ const CreateBet = () => {
       Alert.alert("Please enter a valid number for money wagering.");
       return;
     }
+
+    // console.log("userBalance:", userBalance);
+    // console.log("moneyWager:", moneyWager);
 
     if (parseInt(moneyWager) > userBalance) {
       Alert.alert("You do not have enough money to make this bet.");
