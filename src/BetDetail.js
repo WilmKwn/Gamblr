@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 import { initializeApp} from 'firebase/app';
 import { getFirestore, updateDoc } from "firebase/firestore";
@@ -44,67 +44,81 @@ const BetDetail = ({ route }) => {
   }, []);
 
   const handleButtonPress = () => {
-    getDocs(collection(db, 'bets')).then((querySnapshot) => {
-        querySnapshot.forEach((docc) => {
-            if (docc.id === item.title) {
-                let index = (dir === 'Yes') ? 1 : 0;
-
-                let choicesArr = docc.data().choices;
-
-                choicesArr[index].numVotes += 1;
-                choicesArr[index].cashVotes += parseInt(amount);
-
-                console.log(choicesArr);
-                console.log(docc.data());
-
-                let arr = docc.data().participants;
-                
-                if (!arr.includes(username)) {
-                    arr.push(username);
-                }
-
-                const d = {
-                    ...docc.data(),
-                    choices: choicesArr,
-                    participants: arr,
-                };
-                setDoc(doc(db, "bets", item.title), d).then(() => {
-                    // console.log(arr);
-                });
-            }
-        });
-    });
-  
+    let valid = true;
     getDocs(collection(db, 'users')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === username) {
-                let currentBets = docc.data().activeBets;
-
-                let found = false;
-                let newArr = [];
-                currentBets.forEach((bet) => {
-                    if (bet.title === item.title) {
-                        found = true;
-                        newArr.push({title: bet.title, amount: bet.amount+parseInt(amount), type: bet.type});
-                    } else {
-                        newArr.push(bet);
-                    }
-                });
-
-                if (!found) {
-                    currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                let balance = docc.data().balance;
+                if (amount > balance) {
+                    Alert.alert("You don't have that kinda money");
+                    valid = false;
                 }
-                const d = {
-                    ...docc.data(),
-                    activeBets: found ? newArr : currentBets,
-                    balance: docc.data().balance-parseInt(amount),
-                };
-                setDoc(doc(db, "users", username), d).then(() => {
-                    //console.log(currentBets);
-                });
             }
         });
     });
+    if (valid) {
+        getDocs(collection(db, 'bets')).then((querySnapshot) => {
+            querySnapshot.forEach((docc) => {
+                if (docc.id === item.title) {
+                    let index = (dir === 'Yes') ? 1 : 0;
+
+                    let choicesArr = docc.data().choices;
+
+                    choicesArr[index].numVotes += 1;
+                    choicesArr[index].cashVotes += parseInt(amount);
+
+                    console.log(choicesArr);
+                    console.log(docc.data());
+
+                    let arr = docc.data().participants;
+                    
+                    if (!arr.includes(username)) {
+                        arr.push(username);
+                    }
+
+                    const d = {
+                        ...docc.data(),
+                        choices: choicesArr,
+                        participants: arr,
+                    };
+                    setDoc(doc(db, "bets", item.title), d).then(() => {
+                        // console.log(arr);
+                    });
+                }
+            });
+        });
+    
+        getDocs(collection(db, 'users')).then((querySnapshot) => {
+            querySnapshot.forEach((docc) => {
+                if (docc.id === username) {
+                    let currentBets = docc.data().activeBets;
+
+                    let found = false;
+                    let newArr = [];
+                    currentBets.forEach((bet) => {
+                        if (bet.title === item.title) {
+                            found = true;
+                            newArr.push({title: bet.title, amount: bet.amount+parseInt(amount), type: bet.type});
+                        } else {
+                            newArr.push(bet);
+                        }
+                    });
+
+                    if (!found) {
+                        currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                    }
+                    const d = {
+                        ...docc.data(),
+                        activeBets: found ? newArr : currentBets,
+                        balance: docc.data().balance-parseInt(amount),
+                    };
+                    setDoc(doc(db, "users", username), d).then(() => {
+                        //console.log(currentBets);
+                    });
+                }
+            });
+        });
+    }
   };
 
   const pressYes = () => {
