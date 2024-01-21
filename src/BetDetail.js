@@ -118,7 +118,6 @@ const BetDetail = ({ route }) => {
                     console.log("Updated bets:", currentBets);
                 });
               }
-  
               
           }
       });
