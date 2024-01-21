@@ -54,6 +54,9 @@ const BetDetail = ({ route }) => {
                 choicesArr[index].numVotes += 1;
                 choicesArr[index].cashVotes += parseInt(amount);
 
+                console.log(choicesArr);
+                console.log(docc.data());
+
                 let arr = docc.data().participants;
                 
                 if (!arr.includes(username)) {

@@ -180,26 +180,50 @@ export default function StockBet() {
     return (
         <View style={styles.container}>
             <FlatList
-                data={bets.concat(inactiveBets)}
+                data={bets}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => navigateToDetail(item)}>
-                        <View style={[item.active ? styles.listItem : styles.listItemInactive, { backgroundColor: item.active ? 'white' : 'lightgray' }]}>
-                            <Text style={styles.title}>{item.title.split('-')[0]}</Text>
-                            <View style={styles.countContainer}>
-                                <Text style={styles.countText}># NO: {item.leftNum}</Text>
-                                <Text style={styles.countText}># YES: {item.rightNum}</Text>
-                            </View>
-                            <View style={styles.amountContainer}>
-                                <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
-                                <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
-                            </View>
+                    <View style={styles.listItem}>
+                        <Text style={styles.title}>{item.title.split('-')[0]}</Text>
+                        <View style={styles.countContainer}>
+                        <Text style={styles.countText}># NO: {item.leftNum}</Text>
+                        <Text style={styles.countText}># YES: {item.rightNum}</Text>
                         </View>
+                        <View style={styles.amountContainer}>
+                        <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
+                        <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                        </View>
+                    </View>
                     </TouchableOpacity>
                 )}
                 ListHeaderComponent={
                     <View style={styles.headerContainer}>
-                        {/* Your header content goes here */}
+                    {/* Your header content goes here */}
+                    </View>
+                }
+            />
+            <FlatList
+                data={inactiveBets}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => navigateToDetail(item)}>
+                    <View style={styles.listItemInactive}>
+                        <Text style={styles.title}>{item.title.split('-')[0]}</Text>
+                        <View style={styles.countContainer}>
+                        <Text style={styles.countText}># NO: {item.leftNum}</Text>
+                        <Text style={styles.countText}># YES: {item.rightNum}</Text>
+                        </View>
+                        <View style={styles.amountContainer}>
+                        <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
+                        <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                        </View>
+                    </View>
+                    </TouchableOpacity>
+                )}
+                ListHeaderComponent={
+                    <View style={styles.headerContainer}>
+                    {/* Your header content goes here */}
                     </View>
                 }
             />
