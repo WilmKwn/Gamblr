@@ -99,20 +99,6 @@ function updateActive() {
     
 }
 
-//     const querySnapshot = getDocs(collection(db, 'bets'));
-//     querySnapshot.forEach((doc) => {
-
-//         // updating active
-//         const endDate = doc.data().endDate;
-//         const active = confirmDate(endDate.slice(0, 2), endDate.slice(2, 4), endDate.slice(4, 6), endDate.slice(6, 8), endDate.slice(8, 10), endDate.slice(10, 12));
-
-//         if (!active) {
-//             setDoc(doc(db, 'bets', doc.id), {active: false}, {merge: true});
-//         }
-
-//       });
-// }
-
 
 export default function StockBet() {
 
