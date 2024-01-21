@@ -5,6 +5,8 @@ import {initializeApp} from 'firebase/app';
 import { getFirestore, updateDoc } from "firebase/firestore";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore"; 
 
+import { useGlobal } from './Globals';
+
 const firebaseConfig = {
   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
   authDomain: "gamblr-b2653.firebaseapp.com",
@@ -15,6 +17,10 @@ const firebaseConfig = {
   measurementId: "G-T7RM76C2QB"
 };
 
+const {state, dispatch} = useGlobal()
+
+const usernameInput = state.username;
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -22,7 +28,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
-const Profile = ({ navigation, usernameInput }) => {
+const Profile = ({ navigation }) => {
 
   // Implement logic to cash out here using the value of `moneyAmount`.
   const docRef = doc(db, "users", usernameInput);
