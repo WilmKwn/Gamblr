@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { initializeApp} from 'firebase/app';
 import { getFirestore } from "firebase/firestore";
@@ -20,6 +20,68 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+function confirmDate(year, month, date, hour, minute, amPm) {
+    const currentDate = new Date();
+  
+    const Cyear = parseInt(currentDate.getFullYear().toString().slice(-2)); // Get the last 2 digits of the year (YY)
+    const Cmonth = parseInt(String(currentDate.getMonth() + 1).padStart(2, '0')); // Month (01 - 12)
+    const Cdate = parseInt(String(currentDate.getDate()).padStart(2, '0')); // Date (01 - 31)
+    const Chours = parseInt(String(currentDate.getHours()).padStart(2, '0')); // Hours (00 - 23)
+    const Cminutes = parseInt(String(currentDate.getMinutes()).padStart(2, '0')); // Minutes (00 - 59)
+
+  
+    if (parseInt(year) > Cyear) {
+      return true;
+    } else if (parseInt(year) === Cyear) {
+      if (parseInt(month) > Cmonth) {
+        return true;
+      } else if (parseInt(month) === Cmonth) {
+        if (parseInt(date) > Cdate) {
+          return true;
+        } else if (parseInt(date) === Cdate) {
+          if (amPm === 'AM' && hour === '12') {
+            // Special case for 12:00 AM (midnight)
+            return true;
+          } else if (amPm === 'PM' && hour !== '12') {
+            // Special case for 12:00 PM (noon)
+            return true;
+          } else if (parseInt(hour) > Chours) {
+            return true;
+          } else if (parseInt(hour) === Chours) {
+            if (parseInt(minute) > Cminutes) {
+              console.log("returning true");
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+}
+
+
+function updateActive() {
+
+    getDocs(collection(db, 'bets')).then((querySnapshot) => {
+
+        querySnapshot.forEach((docc) => {
+            // updating active
+            const endDate = docc.data().endDate;
+            const active = confirmDate(endDate.slice(0, 2), endDate.slice(2, 4), endDate.slice(4, 6), endDate.slice(6, 8), endDate.slice(8, 10), endDate.slice(10, 12));
+
+            const d = {
+                ...docc.data(),
+                active: active,
+                merge: true,
+            }
+            setDoc(doc(db, 'bets', docc.id), d);
+
+        });
+        console.log("done");
+    });
+}
+
+
 export default function StockBet() {
     const {state, dispath} = useGlobal();
 
@@ -29,6 +91,18 @@ export default function StockBet() {
     const username = state.username;
 
     const navigation = useNavigation();
+
+    useFocusEffect(
+        React.useCallback(() => {
+          // Code to run when the screen gains focus (navigated to or back)
+          // This is where you can trigger a reload
+          updateActive();
+    
+          return () => {
+            // Code to run when the screen loses focus (navigated away)
+          };
+        }, [])
+    );
 
     React.useEffect(() => {
         const q = query(collection(db, 'users'));

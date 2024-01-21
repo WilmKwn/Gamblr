@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { initializeApp} from 'firebase/app';
 import { getFirestore, updateDoc } from "firebase/firestore";
@@ -21,20 +21,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-
-
-function getCurrentFormattedDate() {
-    const currentDate = new Date();
-  
-    const year = currentDate.getFullYear().toString().slice(-2); // Get the last 2 digits of the year (YY)
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month (01 - 12)
-    const date = String(currentDate.getDate()).padStart(2, '0'); // Date (01 - 31)
-    const hours = String(currentDate.getHours()).padStart(2, '0'); // Hours (00 - 23)
-    const minutes = String(currentDate.getMinutes()).padStart(2, '0'); // Minutes (00 - 59)
-  
-    return year + month + date + hours + minutes;
-  }
-  
   function confirmDate(year, month, date, hour, minute, amPm) {
     const currentDate = new Date();
   
@@ -71,9 +57,7 @@ function getCurrentFormattedDate() {
         }
       }
     }
-  console.log("returning false");
     return false;
-  
 }
 
 
@@ -94,10 +78,7 @@ function updateActive() {
             setDoc(doc(db, 'bets', docc.id), d);
 
         });
-        console.log("done");
     });
-
-    
 }
 
 
@@ -110,9 +91,21 @@ export default function StockBet() {
 
     const navigation = useNavigation();
 
+    useFocusEffect(
+        React.useCallback(() => {
+          // Code to run when the screen gains focus (navigated to or back)
+          // This is where you can trigger a reload
+          updateActive();
+    
+          return () => {
+            // Code to run when the screen loses focus (navigated away)
+          };
+        }, [])
+    );
+
     React.useEffect(() => {
 
-        updateActive();
+        //updateActive();
         
         const q = query(collection(db, 'bets'));
         const unsubscribe = onSnapshot(q, (snapshot) => {

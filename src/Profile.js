@@ -110,10 +110,10 @@ const Profile = ({ navigation }) => {
   };
 
   const handleSignOut = () => {
-
-    // Implement logic to sign out here.
-
-    navigation.replace('LOGIN');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LOGIN' }],
+    });
   };
 
   return (
