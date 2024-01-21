@@ -50,7 +50,6 @@ const db = getFirestore(app);
             return true;
           } else if (parseInt(hour) === Chours) {
             if (parseInt(minute) > Cminutes) {
-              console.log("returning true");
               return true;
             }
           }

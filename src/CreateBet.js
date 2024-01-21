@@ -209,19 +209,6 @@ const CreateBet = () => {
             });
         });
       }
-
-      // subtracting money from user's account
-      
-    //   getDoc(docRef).then((docSnap) => {
-
-    //     updateDoc(docRef, {
-    //       balance: docSnap.data().balance - moneyWagerInt
-    //     }).then(() => {
-    //       console.log("Balance updated successfully.");
-    //     });
-
-    //   });
-
   };
 
   const toggleSwitch = () => {

@@ -49,7 +49,6 @@ function confirmDate(year, month, date, hour, minute, amPm) {
             return true;
           } else if (parseInt(hour) === Chours) {
             if (parseInt(minute) > Cminutes) {
-              console.log("returning true");
               return true;
             }
           }
@@ -77,7 +76,6 @@ function updateActive() {
             setDoc(doc(db, 'bets', docc.id), d);
 
         });
-        console.log("done");
     });
 }
 
