@@ -33,17 +33,13 @@ const BetDetail = ({ route }) => {
   const [check, setCheck] = useState([false, false]);
 
   useEffect(() => {
-    let creator = '';
-    let active = true;
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
         querySnapshot.forEach((docc) => {
             if (docc.id === item.title) {
-                creator = docc.data().creator;
-                active = docc.data().active;
+                setCheck([username===docc.data().creator, !docc.data().active]);
             }
         });
     });
-    setCheck([username===creator, !active]);
   }, []);
 
   const handleButtonPress = () => {
@@ -101,7 +97,7 @@ const BetDetail = ({ route }) => {
     setWhoWon(false);
   }
   const pressFinalize = () => {
-    
+
   }
 
   return (
@@ -148,7 +144,7 @@ const BetDetail = ({ route }) => {
 
       <View style={styles.horizontalLine} />
 
-    { check==[false,false] && (
+    { check[0] && check[1] && (
         <View>
             <Text style={styles.finalizeBetTitle}>Finalize Bet</Text>
 
