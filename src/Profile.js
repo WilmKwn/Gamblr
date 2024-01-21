@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 
 import {initializeApp} from 'firebase/app';
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, updateDoc } from "firebase/firestore";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore"; 
 
 const firebaseConfig = {
@@ -23,7 +23,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const Profile = ({ navigation }) => {
-  // update replacign user informatoin
+
   const user = {
     name: "John Doe",
     balance: 500
@@ -31,10 +31,64 @@ const Profile = ({ navigation }) => {
     // balance: currentBalance,
   };
 
-  const [moneyAmount, setMoneyAmount] = useState('(Money Amount)');
+  const [moneyAmount, setMoneyAmount] = useState('');
 
   const handleAddMoney = () => {
 
+    // Implement logic to cash out here using the value of `moneyAmount`.
+    const docRef = doc(db, "users", "username");
+
+    // Assuming moneyAmount is a string input, parse it to a floating-point number
+    const inputMoney = parseFloat(moneyAmount);
+
+    getDoc(docRef).then((docSnap) => {
+
+        if (isNaN(inputMoney)) {
+            // Handle the case where moneyAmount is not a valid number
+            console.log("Invalid moneyAmount input. Please enter a valid number.");
+        } else {
+            // console.log("moneyAmount is", moneyAmount);
+
+                // Update the balance only if moneyAmount is a valid number and there are sufficient funds
+                updateDoc(docRef, {
+                    balance: docSnap.data().balance + inputMoney
+                }).then(() => {
+                    console.log("Balance updated successfully.");
+                });
+            
+        }
+    });
+
+  };
+
+  const handleCashOut = () => {
+    // Implement logic to cash out here using the value of `moneyAmount`.
+    const docRef = doc(db, "users", "username");
+
+    // Assuming moneyAmount is a string input, parse it to a floating-point number
+    const inputMoney = parseFloat(moneyAmount);
+
+    getDoc(docRef).then((docSnap) => {
+
+        if (isNaN(inputMoney)) {
+            // Handle the case where moneyAmount is not a valid number
+            console.log("Invalid moneyAmount input. Please enter a valid number.");
+        } else {
+            // console.log("moneyAmount is", moneyAmount);
+
+            if (docSnap.data().balance - inputMoney < 0) {
+                // Handle insufficient funds
+                console.log("Insufficient funds");
+            } else {
+                // Update the balance only if moneyAmount is a valid number and there are sufficient funds
+                updateDoc(docRef, {
+                    balance: docSnap.data().balance - inputMoney
+                }).then(() => {
+                    console.log("Balance updated successfully.");
+                });
+            }
+        }
+    });
   };
 
   const handleSignOut = () => {
@@ -55,7 +109,9 @@ const Profile = ({ navigation }) => {
       <TextInput
         style={styles.input}
         value={moneyAmount}
-        onChangeText={(text) => setMoneyAmount(text)}
+        onChangeText={(text) => {
+          setMoneyAmount(text);
+        }}
       />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.addButton} onPress={handleAddMoney}>
