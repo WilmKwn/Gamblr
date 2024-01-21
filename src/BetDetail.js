@@ -31,43 +31,44 @@ const BetDetail = ({route}) => {
 
   const handleButtonPress = () => {
     getDocs(collection(db, 'bets')).then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-            if (doc.id === item.title) {
+        querySnapshot.forEach((docc) => {
+            if (docc.id === item.title) {
                 let index = (dir === 'Yes') ? 1 : 0;
-                let choicesArr = doc.data().choices;
+                let choicesArr = docc.data().choices;
                 choicesArr[index].numVotes += 1;
-                choicesArr[index].cashVotes += amount;
+                choicesArr[index].cashVotes += parseInt(amount);
 
-                let arr = doc.data().participants;
-                arr.push(username);
+                let arr = docc.data().participants;
+                if (!arr.includes(username)) {
+                    arr.push(username);
+                }
                 const d = {
-                    ...doc.data(),
+                    ...docc.data(),
                     choices: choicesArr,
                     participants: arr,
                 };
-                setDoc(doc(db, "users", username), data).then(() => {
+                setDoc(doc(db, "bets", item.title), d).then(() => {
                     console.log(arr);
                 });
-                return;
+            }
+        });
+    })
+    getDocs(collection(db, 'users')).then((querySnapshot) => {
+        querySnapshot.forEach((docc) => {
+            if (docc.id === username) {
+                let currentBets = docc.data().activeBets;
+                currentBets.push({title: item.title, amount: amount, type: (dir==='Yes')});
+                const d = {
+                    ...docc.data(),
+                    activeBets: currentBets,
+                };
+                setDoc(doc(db, "users", username), d).then(() => {
+                    console.log(currentBets);
+                });
             }
         });
     })
   };
-
-  React.useEffect(() => {
-    const q = query(collection(db, 'bets'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-        const arr = [];
-        snapshot.forEach((doc) => {
-            const temp = doc.data();
-            const d = {
-
-            }
-            arr.push(d);
-        });
-    });
-    return () => unsubscribe();
-  }, []);
 
   const pressYes = () => {
     setDir('Yes');
@@ -78,7 +79,7 @@ const BetDetail = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>{item.title}</Text>
+      <Text style={styles.headerText}>{item.title.split('-')[0]}</Text>
       
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={pressYes} style={styles.button}>

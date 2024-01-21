@@ -25,25 +25,38 @@ export default function StockBet() {
 
     const [bets, setBets] = React.useState([]);
 
+    const username = state.username;
+
     const navigation = useNavigation();
 
     React.useEffect(() => {
-        const q = query(collection(db, 'bets'));
+        const q = query(collection(db, 'users'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const arr = [];
             snapshot.forEach((doc) => {
-                const temp = doc.data();
-                const d = {
-                    title: doc.id,
-                    leftNum: temp.choices[0].numVotes,
-                    leftAmount: temp.choices[0].cashVotes,
-                    rightNum: temp.choices[1].numVotes,
-                    rightAmount: temp.choices[1].cashVotes,
-                    timeLeft: temp.endDate,
+                if (doc.id === username) {
+                    const temp = doc.data();
+                    let activeArr = temp.activeBets;
+                    activeArr.forEach((obj) => {
+                        getDocs(collection(db, "bets")).then((querySnapshot) => {
+                            querySnapshot.forEach((docc) => {
+                                if (docc.id === obj.title) {
+                                    let temp = docc.data();
+                                    const d = {
+                                        title: docc.id,
+                                        leftNum: temp.choices[0].numVotes,
+                                        leftAmount: temp.choices[0].cashVotes,
+                                        rightNum: temp.choices[1].numVotes,
+                                        rightAmount: temp.choices[1].cashVotes,
+                                        timeLeft: temp.endDate,
+                                    }
+                                    arr.push(d);
+                                }
+                            });
+                        })
+                    });
                 }
-                arr.push(d);
             });
-            arr.sort((a,b) => (a.leftAmount+a.rightAmount) - (b.leftAmount+b.rightAmount))
             setBets(arr);
         });
         return () => unsubscribe();
@@ -109,12 +122,6 @@ export default function StockBet() {
                 </View>
             }
             />
-            <TouchableOpacity onPress={() => navigateToCreate()} style={styles.createButton}>
-            <Image
-                source={require('../images/plus_logo.png')}
-                style={styles.createButtonIcon}
-            />
-            </TouchableOpacity>
         </View>
     );
 };

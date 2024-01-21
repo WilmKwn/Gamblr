@@ -41,9 +41,9 @@ const Login = ({ navigation }) => {
                 if (!found) {
                     Alert.alert("WRONG username or password");
                 }
-            })
+            });
         } else {
-            const querySnapshot = getDocs(collection(db, "users")).then(() => {
+            getDocs(collection(db, "users")).then((querySnapshot) => {
                 let found = false;
                 querySnapshot.forEach((doc) => {
                     if (doc.id === username) {
