@@ -71,7 +71,7 @@ const BetDetail = ({ route }) => {
         });
     });
 
-    ggetDocs(collection(db, 'users')).then((querySnapshot) => {
+    getDocs(collection(db, 'users')).then((querySnapshot) => {
       querySnapshot.forEach((docc) => {
           if (docc.id === username) {
               let currentBets = docc.data().activeBets;
