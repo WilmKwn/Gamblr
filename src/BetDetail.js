@@ -84,18 +84,19 @@ const BetDetail = ({ route }) => {
   
               if (existingBetIndex !== -1) {
 
-                const toUpdate = doc(db, "users", username);
-                getDoc(toUpdate).then((docc) => {
+              const toUpdate = doc(db, "users", username);
+               getDoc(toUpdate).then((docc) => {
 
-                  updateDoc(toUpdate, {
+               updateDoc(toUpdate, {
 
-                    activeBets[existingBetIndex]: {amount: docc.data().activeBets[existingBetIndex].amount + amount,
-                      type: docc.data().activeBets[existingBetIndex].type,
-                      title: docc.data().activeBets[existingBetIndex].title}
+                    // activeBets[existingBetIndex]: amount: docc.data().activeBets[existingBetIndex].amount + amount
+                    // type: docc.data().activeBets[existingBetIndex].type,
+                    // title: docc.data().activeBets[existingBetIndex].title
 
-                  }).then(() => {
-                    console.log("Document successfully updated!");
-                });
+                 }).then(() => {
+
+                  console.log("Document successfully updated!");
+                 });
               })
               
               } else {
