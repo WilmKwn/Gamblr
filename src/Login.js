@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, View, Text, Switch, TextInput, TouchableOpacity, Dimensions, Alert } from 'react-native';
 
-import {SDK_VERSION, initializeApp} from 'firebase/app';
+import { initializeApp} from 'firebase/app';
 import { getFirestore } from "firebase/firestore";
-import { collection, getDocs, setDoc, doc } from "firebase/firestore"; 
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
+
+import { useGlobal } from './Globals';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtRpSuYg-E2fsKiQyrp2VlAy6Ahgc5zNc",
@@ -22,39 +24,50 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(false);
 
-  const handleLogin = async() => {
+  const { state, dispatch } = useGlobal();
+
+  const handleLogin = () => {
     if (username !== "" && password !== "") {
         if (isLogin) {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            querySnapshot.forEach((doc) => {
-                if (doc.id === username && doc.data().password === password) {
-                    navigation.replace('BETS HOME');
+            getDocs(collection(db, "users")).then((querySnapshot) => {
+                let found = false;
+                querySnapshot.forEach((doc) => {
+                    if (doc.id === username && doc.data().password === password) {
+                        found = true;
+                        dispatch({ type: 'UPDATE_USERNAME', payload: username });
+                        navigation.replace('BETS HOME');
+                    }
+                });
+                if (!found) {
+                    Alert.alert("WRONG username or password");
                 }
-            });
-            Alert.alert("WRONG username or password");
+            })
         } else {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            let found = false;
-            querySnapshot.forEach((doc) => {
-                if (doc.id === username) {
-                    Alert.alert("Username already exists");
-                    found = true;
+            const querySnapshot = getDocs(collection(db, "users")).then(() => {
+                let found = false;
+                querySnapshot.forEach((doc) => {
+                    if (doc.id === username) {
+                        Alert.alert("Username already exists");
+                        found = true;
+                    }
+                });
+                if (!found) {
+                    const data = {
+                        password: password,
+                        balance: 20,
+                        moneyLosses: 0,
+                        moneyWins: 0,
+                        numLosses: 0,
+                        numWins: 0,
+                        profilePic: null,
+                        activeBets: [],
+                    };
+                    setDoc(doc(db, "users", username), data).then(() => {
+                        dispatch({ type: 'UPDATE_USERNAME', payload: username });
+                        navigation.replace('BETS HOME');
+                    })
                 }
-            });
-            if (!found) {
-                const data = {
-                    password: password,
-                    balance: 20,
-                    moneyLosses: 0,
-                    moneyWins: 0,
-                    numLosses: 0,
-                    numWins: 0,
-                    profilePic: null,
-                    activeBets: [],
-                };
-                await setDoc(doc(db, "users", username), data);
-                navigation.replace('BETS HOME');
-            }
+            })
         }
     }
   }

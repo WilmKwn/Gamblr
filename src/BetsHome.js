@@ -2,8 +2,12 @@ import * as React from 'react';
 import { Dimensions, Image, TouchableOpacity, FlatList, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+import { useGlobal } from './Globals';
+
 export default function StockBet({route}) {
-    // const {tabData} = route.params;
+    const {data} = route?.params.data;
+
+    const {state, dispath} = useGlobal();
 
     const [bets, setBets] = React.useState([]);
 

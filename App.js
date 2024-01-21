@@ -10,6 +10,8 @@ import Profile from './src/Profile';
 import Login from "./src/Login";
 import CreateBet from "./src/CreateBet";
 
+import { GlobalProvider } from './src/Globals';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -17,13 +19,13 @@ function BetsHomeTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="STOCK BETS">
-        {() => <BetsHome data="Data for Tab 1" />}
+        {() => <BetsHome route={{ params: { data: 'stock' } }} />}
       </Tab.Screen>
       <Tab.Screen name="CUSTOM BETS">
-        {() => <BetsHome data="Data for Tab 2" />}
+        {() => <BetsHome route={{ params: { data: 'custom' } }} />}
       </Tab.Screen>
       <Tab.Screen name="MY BETS">
-        {() => <BetsHome data="Data for Tab 2" />}
+        {() => <BetsHome route={{ params: { data: 'mine' } }} />}
       </Tab.Screen>
     </Tab.Navigator>
   );
@@ -43,8 +45,10 @@ function MyStack() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <MyStack />
-    </NavigationContainer>
+    <GlobalProvider>
+      <NavigationContainer>
+        <MyStack />
+      </NavigationContainer>
+    </GlobalProvider>
   )
 }
