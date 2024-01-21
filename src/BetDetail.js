@@ -176,7 +176,7 @@ const BetDetail = ({ navigation, route }) => {
                                             balance: newBalance,
                                         }
                                         setDoc(doc(db, "users", p), d).then(() => {
-                                            console.log("finalized");
+                                            navigation.navigate("BETS HOME");
                                         });
                                     }
                                 });
