@@ -24,6 +24,7 @@ export default function StockBet() {
     const {state, dispath} = useGlobal();
 
     const [bets, setBets] = React.useState([]);
+    const [inactiveBets, setInactiveBets] = React.useState([]);
 
     const username = state.username;
 
@@ -33,6 +34,7 @@ export default function StockBet() {
         const q = query(collection(db, 'users'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const arr = [];
+            const inactive = [];
             snapshot.forEach((doc) => {
                 if (doc.id === username) {
                     const temp = doc.data();
@@ -50,7 +52,11 @@ export default function StockBet() {
                                         rightAmount: temp.choices[1].cashVotes,
                                         timeLeft: temp.endDate,
                                     }
-                                    arr.push(d);
+                                    if (temp.active) {
+                                        arr.push(d);
+                                    } else {
+                                        inactive.push(d);
+                                    }
                                 }
                             });
                         });
@@ -58,6 +64,7 @@ export default function StockBet() {
                 }
             });
             setBets(arr);
+            setInactiveBets(inactive);
         });
         return () => unsubscribe();
     }, []);
@@ -99,28 +106,52 @@ export default function StockBet() {
     return (
         <View style={styles.container}>
             <FlatList
-            data={bets}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigateToDetail(item)}>
-                <View style={styles.listItem}>
-                    <Text style={styles.title}>{item.title.split('-')[0]}</Text>
-                    <View style={styles.countContainer}>
-                    <Text style={styles.countText}># NO: {item.leftNum}</Text>
-                    <Text style={styles.countText}># YES: {item.rightNum}</Text>
+                data={bets}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => navigateToDetail(item)}>
+                    <View style={styles.listItem}>
+                        <Text style={styles.title}>{item.title.split('-')[0]}</Text>
+                        <View style={styles.countContainer}>
+                        <Text style={styles.countText}># NO: {item.leftNum}</Text>
+                        <Text style={styles.countText}># YES: {item.rightNum}</Text>
+                        </View>
+                        <View style={styles.amountContainer}>
+                        <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
+                        <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                        </View>
                     </View>
-                    <View style={styles.amountContainer}>
-                    <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
-                    <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                    </TouchableOpacity>
+                )}
+                ListHeaderComponent={
+                    <View style={styles.headerContainer}>
+                    {/* Your header content goes here */}
                     </View>
-                </View>
-                </TouchableOpacity>
-            )}
-            ListHeaderComponent={
-                <View style={styles.headerContainer}>
-                {/* Your header content goes here */}
-                </View>
-            }
+                }
+            />
+            <FlatList
+                data={inactiveBets}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => navigateToDetail(item)}>
+                    <View style={styles.listItemInactive}>
+                        <Text style={styles.title}>{item.title.split('-')[0]}</Text>
+                        <View style={styles.countContainer}>
+                        <Text style={styles.countText}># NO: {item.leftNum}</Text>
+                        <Text style={styles.countText}># YES: {item.rightNum}</Text>
+                        </View>
+                        <View style={styles.amountContainer}>
+                        <Text style={styles.amountText}>Amount: {item.leftAmount}</Text>
+                        <Text style={styles.amountText}>Amount: {item.rightAmount}</Text>
+                        </View>
+                    </View>
+                    </TouchableOpacity>
+                )}
+                ListHeaderComponent={
+                    <View style={styles.headerContainer}>
+                    {/* Your header content goes here */}
+                    </View>
+                }
             />
         </View>
     );
@@ -139,6 +170,13 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ddd',
         paddingVertical: 10,
         paddingLeft: 10,
+    },
+    listItemInactive: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        paddingVertical: 10,
+        paddingLeft: 10,
+        backgroundColor: 'lightgray',
     },
     title: {
         fontSize: 24,
